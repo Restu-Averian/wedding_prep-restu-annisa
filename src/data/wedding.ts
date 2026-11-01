@@ -26,6 +26,7 @@ export interface Candidate {
   name: string
   price: number
   url?: string
+  image?: string
 }
 
 export interface Payment {
@@ -50,10 +51,12 @@ export const items: WeddingItem[] = [
 ]
 
 export const candidates: Candidate[] = [
-  { id: 'makeup-a', itemId: 'makeup', name: 'Kandidat A', price: 475000 },
-  { id: 'makeup-b', itemId: 'makeup', name: 'Kandidat B', price: 420000 },
-  { id: 'makeup-c', itemId: 'makeup', name: 'Kandidat C', price: 450000 },
-  { id: 'ring-a', itemId: 'cincin-lamaran', name: 'Referensi Cincin A', price: 2000000 },
+  { id: 'makeup-a', itemId: 'makeup', name: 'Kandidat A', price: 475000, url: 'https://example.com/makeup-a' },
+  { id: 'makeup-b', itemId: 'makeup', name: 'Kandidat B', price: 420000, url: 'https://example.com/makeup-b' },
+  { id: 'makeup-c', itemId: 'makeup', name: 'Kandidat C', price: 450000, url: 'https://example.com/makeup-c' },
+  { id: 'skincare-a', itemId: 'skincare', name: 'Referensi Skincare A', price: 325000, url: 'https://example.com/skincare-a' },
+  { id: 'skincare-b', itemId: 'skincare', name: 'Referensi Skincare B', price: 300000, url: 'https://example.com/skincare-b' },
+  { id: 'ring-a', itemId: 'cincin-lamaran', name: 'Referensi Cincin A', price: 2000000, url: 'https://example.com/ring-a' },
 ]
 
 export const payments: Payment[] = [

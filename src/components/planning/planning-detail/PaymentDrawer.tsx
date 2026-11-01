@@ -1,26 +1,18 @@
-import { useState, useRef, useEffect, useCallback, type MouseEvent } from 'react'
+import { useState, useRef, useEffect, useCallback, type MouseEvent, type Dispatch } from 'react'
 import { PaymentSheet } from '../../../styles/Planning.styles'
+import type { Payment } from '../../../data/wedding'
 
 export interface PaymentDrawerProps {
   itemName: string
   onClose: () => void
+  remaining: number
+  onSave: Dispatch<Omit<Payment, 'id' | 'itemId'>>
 }
 
-export function PaymentDrawer({ itemName, onClose }: PaymentDrawerProps) {
-  const [submitted, setSubmitted] = useState(false)
+export function PaymentDrawer({ itemName, onClose, remaining, onSave }: PaymentDrawerProps) {
+  const [error, setError] = useState('')
   const [isClosing, setIsClosing] = useState(false)
   const dialogRef = useRef<HTMLDialogElement>(null)
-
-  useEffect(() => {
-    const dialog = dialogRef.current
-    if (!dialog) return
-    const previousOverflow = document.body.style.overflow
-    dialog.showModal()
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = previousOverflow
-    }
-  }, [])
 
   const handleClose = useCallback(() => {
     if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
@@ -50,6 +42,17 @@ export function PaymentDrawer({ itemName, onClose }: PaymentDrawerProps) {
     }
   }
 
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!dialog) return
+    const previousOverflow = document.body.style.overflow
+    dialog.showModal()
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [])
+
   return (
     <PaymentSheet
       ref={dialogRef}
@@ -75,14 +78,26 @@ export function PaymentDrawer({ itemName, onClose }: PaymentDrawerProps) {
         </button>
       </div>
       <p id="drawer-description">
-        {itemName} · Simulasi saja, pembayaran tidak disimpan.
+        {itemName} · Simulasi lokal, tidak disimpan setelah halaman ditinggalkan.
       </p>
       <form
         onSubmit={(event) => {
           event.preventDefault()
-          setSubmitted(true)
+          if (isClosing) return
+          const form = event.currentTarget
+          const data = new FormData(form)
+          const amount = Number(data.get('amount'))
+          const kind = String(data.get('kind') ?? '')
+          const date = String(data.get('date') ?? '')
+          if (!Number.isSafeInteger(amount) || amount <= 0 || amount > remaining ||
+            !['DP', 'Cicilan', 'Pelunasan'].includes(kind) || !date || !form.checkValidity()) {
+            setError('Periksa isian. Nominal harus berupa rupiah utuh dan tidak melebihi sisa pembayaran.')
+            return
+          }
+          onSave({ kind, amount, date, note: String(data.get('note') ?? '').trim() })
+          handleClose()
         }}
-        onChange={() => setSubmitted(false)}
+        onChange={() => setError('')}
       >
         <label htmlFor="payment-kind">Jenis pembayaran</label>
         <select id="payment-kind" name="kind" required defaultValue="">
@@ -99,7 +114,7 @@ export function PaymentDrawer({ itemName, onClose }: PaymentDrawerProps) {
           name="amount"
           type="number"
           min="1"
-          max={Number.MAX_SAFE_INTEGER}
+          max={remaining}
           step="1"
           inputMode="numeric"
           required
@@ -115,14 +130,9 @@ export function PaymentDrawer({ itemName, onClose }: PaymentDrawerProps) {
           maxLength={500}
           placeholder="Catatan pembayaran…"
         />
-        {submitted && (
-          <p role="status">
-            Simulasi selesai. Tidak ada transaksi yang disimpan atau saldo yang
-            diubah.
-          </p>
-        )}
-        <button className="primary" type="submit">
-          Simulasikan Pembayaran
+        {error && <p role="alert">{error}</p>}
+        <button className="primary" type="submit" disabled={isClosing}>
+          Simpan Simulasi
         </button>
       </form>
     </PaymentSheet>

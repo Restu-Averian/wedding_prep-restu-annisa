@@ -61,7 +61,9 @@ export const PlanningPage = styled.div`
   ${controls}
   display: grid;
   gap: 24px;
+  width: 100%;
   min-width: 0;
+  box-sizing: border-box;
   h1 { margin-bottom: 12px; }
   h2 { margin: 0 0 20px; font-size: 1.4rem; }
   h3 { margin: 0 0 8px; font-size: 1rem; }

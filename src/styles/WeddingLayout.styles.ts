@@ -42,7 +42,12 @@ export const Nav = styled.nav`
 export const Main = styled.main`
   width: min(100%, 960px);
   margin: 0 auto;
-  padding: 48px 24px calc(104px + env(safe-area-inset-bottom, 0px));
+  padding: 32px 16px calc(104px + env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
+
+  @media (min-width: 480px) {
+    padding: 48px 24px calc(104px + env(safe-area-inset-bottom, 0px));
+  }
 
   @media (min-width: 768px) {
     padding: 72px 24px;
