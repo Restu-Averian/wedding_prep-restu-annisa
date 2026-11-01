@@ -5,7 +5,7 @@ import Home from './pages/Home'
 import Planning from './pages/planning'
 import PlanningDetail from './pages/planning/PlanningDetail'
 
-export const routes: RouteObject[] = [
+export const ROUTES: RouteObject[] = [
   {
     element: <WeddingLayout />,
     children: [
@@ -16,3 +16,5 @@ export const routes: RouteObject[] = [
     ],
   },
 ]
+
+export const routes = ROUTES

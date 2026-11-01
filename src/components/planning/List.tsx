@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { categories, type WeddingItem } from '../../data/wedding'
+import { CATEGORIES, type WeddingItem } from '../../data/wedding'
 import { formatRupiah } from '../../utils/currency'
 
 export interface ListProps {
@@ -27,7 +27,7 @@ export function List({ items, queryString = '' }: ListProps) {
             to={`/rencana/${item.id}${querySuffix}`}
           >
             <span className="eyebrow">
-              {categories.find(({ id }) => id === item.categoryId)?.name}
+              {CATEGORIES.find(({ id }) => id === item.categoryId)?.name}
             </span>
             <h2>{item.name}</h2>
             <p className="price">{formatRupiah(item.estimate)}</p>
@@ -45,4 +45,3 @@ export function List({ items, queryString = '' }: ListProps) {
 }
 
 export default List
-

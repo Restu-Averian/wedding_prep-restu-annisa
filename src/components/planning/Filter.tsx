@@ -1,18 +1,18 @@
-import { categories as defaultCategories } from '../../data/wedding'
+import { CATEGORIES as DEFAULT_CATEGORIES } from "../../data/wedding";
 
 export interface FilterProps {
-  search: string
-  selectedCategoryId?: string
+  search: string;
+  selectedCategoryId?: string;
   // eslint-disable-next-line no-unused-vars
-  onUpdateFilter: (key: string, value: string) => void
-  categoryList?: readonly { id: string; name: string }[]
+  onUpdateFilter: (key: string, value: string) => void;
+  categoryList?: readonly { id: string; name: string }[];
 }
 
 export function Filter({
   search,
   selectedCategoryId,
   onUpdateFilter,
-  categoryList = defaultCategories,
+  categoryList = DEFAULT_CATEGORIES,
 }: FilterProps) {
   return (
     <>
@@ -23,7 +23,7 @@ export function Filter({
           type="search"
           placeholder="Cari nama kebutuhan…"
           value={search}
-          onChange={(event) => onUpdateFilter('q', event.target.value)}
+          onChange={(event) => onUpdateFilter("q", event.target.value)}
         />
       </div>
 
@@ -31,7 +31,7 @@ export function Filter({
         <button
           type="button"
           aria-pressed={!selectedCategoryId}
-          onClick={() => onUpdateFilter('kategori', '')}
+          onClick={() => onUpdateFilter("kategori", "")}
         >
           Semua
         </button>
@@ -40,14 +40,14 @@ export function Filter({
             key={id}
             type="button"
             aria-pressed={selectedCategoryId === id}
-            onClick={() => onUpdateFilter('kategori', id)}
+            onClick={() => onUpdateFilter("kategori", id)}
           >
             {name}
           </button>
         ))}
       </div>
     </>
-  )
+  );
 }
 
-export default Filter
+export default Filter;
