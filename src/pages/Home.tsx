@@ -1,9 +1,16 @@
+import { CategoryGrid } from "../components/home/CategoryGrid";
+import { FinancialCard } from "../components/home/FinancialCard";
+import { Header } from "../components/home/Header";
+import { HomeDashboard } from "../styles/Home.styles";
+
 export default function Home() {
   return (
-    <>
-      <h1>Our Wedding</h1>
-      <h2>Restu &amp; Annisa</h2>
-      <p>Ruang untuk mempersiapkan hari bahagia kita. Cerita ini akan dilengkapi secara bertahap.</p>
-    </>
-  )
+    <HomeDashboard>
+      <Header />
+
+      <FinancialCard />
+
+      <CategoryGrid />
+    </HomeDashboard>
+  );
 }

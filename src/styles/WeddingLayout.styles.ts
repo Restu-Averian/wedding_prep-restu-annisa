@@ -1,7 +1,6 @@
-import { NavLink } from 'react-router-dom'
 import { styled } from 'styled-components'
 
-const Nav = styled.nav`
+export const Nav = styled.nav`
   position: fixed;
   inset: auto 0 0;
   z-index: 10;
@@ -40,12 +39,20 @@ const Nav = styled.nav`
   }
 `
 
-export default function Navigation() {
-  return (
-    <Nav aria-label="Navigasi utama">
-      <NavLink to="/" end>Home</NavLink>
-      <NavLink to="/rencana">Rencana</NavLink>
-      <NavLink to="/pembayaran">Pembayaran</NavLink>
-    </Nav>
-  )
-}
+export const Main = styled.main`
+  width: min(100%, 960px);
+  margin: 0 auto;
+  padding: 48px 24px calc(104px + env(safe-area-inset-bottom, 0px));
+
+  @media (min-width: 768px) {
+    padding: 72px 24px;
+  }
+`
+
+export const Footer = styled.footer`
+  padding-top: 32px;
+  text-align: center;
+  color: #88656b;
+  font: italic 0.875rem/1.8 Georgia, serif;
+`
+

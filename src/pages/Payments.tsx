@@ -1,4 +1,4 @@
-export default function Pembayaran() {
+export default function Payments() {
   return (
     <>
       <h1>Pembayaran</h1>

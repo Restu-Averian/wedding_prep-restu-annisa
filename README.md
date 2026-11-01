@@ -22,10 +22,9 @@ Check routing memeriksa render route, link aktif, dan perpindahan pada instance 
 ## Struktur
 
 - src/pages/: tiga halaman placeholder.
-- src/components/Navigation.tsx: NavLink bersama.
-- src/layouts/WeddingLayout.tsx: shared layout dengan Outlet.
+- src/layouts/WeddingLayout.tsx: shared layout dengan Outlet dan NavLink.
 - src/router.tsx: konfigurasi route.
-- src/styles/GlobalStyle.ts: styling global.
+- src/styles/: styling global dan styled components layout.
 - scripts/check-routing.mjs: pemeriksaan routing tanpa framework tambahan.
 
 Hosting production perlu fallback ke index.html untuk membuka route secara langsung. Vite dev dan preview sudah mendukungnya.

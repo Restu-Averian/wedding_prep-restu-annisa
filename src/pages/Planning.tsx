@@ -1,4 +1,4 @@
-export default function Rencana() {
+export default function Planning() {
   return (
     <>
       <h1>Rencana</h1>
