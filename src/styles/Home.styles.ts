@@ -97,23 +97,6 @@ export const HomeDashboard = styled.div`
     min-width: 0;
   }
 
-  .payment-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    min-height: 44px;
-    color: #795344;
-    font-size: 0.875rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: color 0.15s ease, transform 0.15s ease;
-  }
-
-  .payment-link:hover {
-    color: #493426;
-    transform: translateX(2px);
-  }
-
   /* Category Cards Grid */
   .categories {
     margin-top: 8px;

@@ -5,12 +5,11 @@ import {
   GemIcon,
   AkadIcon,
 } from '../../asset/home'
+import { categories } from '../../data/wedding'
+import { formatRupiah } from '../../utils/currency'
 
-export const CATEGORIES = [
-  { name: 'Lamaran', estimate: 'Rp5.250.000', icon: RingIcon },
-  { name: 'Seserahan', estimate: 'Rp2.625.000', icon: GiftIcon },
-  { name: 'Resepsi', estimate: 'Rp46.300.000', icon: CelebrationIcon },
-  { name: 'Mahar', estimate: 'Rp27.052.028', icon: GemIcon },
-  { name: 'Akad Nikah', estimate: 'Rp3.650.000', icon: AkadIcon },
-]
+const icons = { lamaran: RingIcon, seserahan: GiftIcon, resepsi: CelebrationIcon, mahar: GemIcon, 'akad-nikah': AkadIcon }
 
+export const CATEGORIES = categories.map(({ id, name, estimate }) => ({
+  id, name, estimate: formatRupiah(estimate), icon: icons[id],
+}))

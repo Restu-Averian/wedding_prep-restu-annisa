@@ -8,7 +8,6 @@ export default function WeddingLayout() {
       <Nav aria-label="Navigasi utama">
         <NavLink to="/" end>Home</NavLink>
         <NavLink to="/rencana">Rencana</NavLink>
-        <NavLink to="/pembayaran">Pembayaran</NavLink>
       </Nav>
       <Main id="main-content" tabIndex={-1}>
         <Outlet />

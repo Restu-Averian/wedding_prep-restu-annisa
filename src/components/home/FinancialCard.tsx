@@ -1,5 +1,3 @@
-import { Link } from 'react-router-dom'
-
 export function FinancialCard() {
   return (
     <section className="financial-card" aria-labelledby="financial-title">
@@ -13,9 +11,10 @@ export function FinancialCard() {
           <span className="stat-label">Sudah Dibayar</span>
           <p className="stat-value paid">Rp0</p>
         </div>
-        <Link className="payment-link" to="/pembayaran">
-          Lihat Pembayaran <span aria-hidden="true">→</span>
-        </Link>
+        <div className="sub-stat">
+          <span className="stat-label">Sisa Pembayaran</span>
+          <p className="stat-value paid">Rp84.877.028</p>
+        </div>
       </div>
     </section>
   )

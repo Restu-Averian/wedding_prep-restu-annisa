@@ -8,10 +8,10 @@ export function CategoryGrid() {
         <h2 id="categories-title">Kategori Persiapan</h2>
       </div>
       <div className="category-grid">
-        {CATEGORIES.map(({ name, estimate, icon: Icon }) => (
+        {CATEGORIES.map(({ id, name, estimate, icon: Icon }) => (
           <Link
             key={name}
-            to={`/rencana?kategori=${encodeURIComponent(name)}`}
+            to={`/rencana?kategori=${id}`}
             className="category-card"
           >
             <div className="icon-wrapper">
