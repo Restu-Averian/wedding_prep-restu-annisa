@@ -1,28 +1,34 @@
+import { useState } from "react";
 import type { Candidate, Payment } from "../../../data/wedding";
 import { formatRupiah } from "../../../utils/currency";
-import { CheckIcon, InfoIcon, PlusIcon, StoreIcon } from "./Icons";
+import { CheckIcon, InfoIcon, PlusIcon, StoreIcon } from "../Icons";
+import { PaymentDrawer } from "./PaymentDrawer";
 
 export interface PaymentSectionProps {
+  itemName: string;
   selected?: Candidate;
   estimate: number;
   paid: number;
   remaining: number;
   status: string;
   transactions: Payment[];
-  onOpenPayment: () => void;
+  // eslint-disable-next-line no-unused-vars
+  onSavePayment: (payment: Omit<Payment, "id" | "itemId">) => void;
   onSwitchToReferences?: () => void;
 }
 
 export function PaymentSection({
+  itemName,
   selected,
   estimate,
   paid,
   remaining,
   status,
   transactions,
-  onOpenPayment,
+  onSavePayment,
   onSwitchToReferences,
 }: PaymentSectionProps) {
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const total = selected ? selected.price : estimate;
 
   return (
@@ -147,7 +153,7 @@ export function PaymentSection({
         <button
           className="primary action-pay-btn"
           type="button"
-          onClick={onOpenPayment}
+          onClick={() => setDrawerOpen(true)}
         >
           <PlusIcon size={18} />
           <span>Catat Pembayaran</span>
@@ -158,6 +164,15 @@ export function PaymentSection({
         Simulasi lokal. Data kembali ke contoh saat halaman dimuat ulang atau
         ditinggalkan.
       </p>
+
+      {drawerOpen && (
+        <PaymentDrawer
+          itemName={itemName}
+          remaining={remaining}
+          onSave={onSavePayment}
+          onClose={() => setDrawerOpen(false)}
+        />
+      )}
     </section>
   );
 }

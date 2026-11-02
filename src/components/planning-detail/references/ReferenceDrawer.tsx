@@ -10,11 +10,12 @@ import type { Candidate } from "../../../data/wedding";
 import { ReferenceSheet } from "../../../styles/PlanningDetail.styles";
 import { formatRupiah } from "../../../utils/currency";
 
-interface ReferenceDrawerProps {
+export interface ReferenceDrawerProps {
   itemId: string;
   candidate: Candidate | null;
   minimumPrice: number;
   onSave: Dispatch<Candidate>;
+  onAfterSave?: () => void;
   onClose: () => void;
 }
 
@@ -23,6 +24,7 @@ export function ReferenceDrawer({
   candidate,
   minimumPrice,
   onSave,
+  onAfterSave,
   onClose,
 }: ReferenceDrawerProps) {
   const [image, setImage] = useState(candidate?.image);
@@ -110,6 +112,7 @@ export function ReferenceDrawer({
       url: url || undefined,
       image,
     });
+    onAfterSave?.();
   }
 
   useEffect(() => {
