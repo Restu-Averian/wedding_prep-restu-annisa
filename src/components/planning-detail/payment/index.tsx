@@ -1,27 +1,27 @@
-import { useState } from 'react'
-import type { Candidate, Payment } from '../../../data/wedding'
-import { CheckIcon, PlusIcon } from '../Icons'
-import { PaymentDrawer } from './PaymentDrawer'
-import { PaymentVendorNotSelected } from './PaymentVendorNotSelected'
-import { PaymentSummaryCards } from './PaymentSummaryCards'
-import { PaymentHistory } from './PaymentHistory'
+import { useState } from "react";
+import type { Candidate, Payment } from "../../../data/wedding";
+import { CheckIcon, PlusIcon } from "../Icons";
+import { PaymentDrawer } from "./PaymentDrawer";
+import { PaymentVendorNotSelected } from "./PaymentVendorNotSelected";
+import { PaymentSummaryCards } from "./PaymentSummaryCards";
+import { PaymentHistory } from "./PaymentHistory";
 
-export { PaymentVendorNotSelected } from './PaymentVendorNotSelected'
-export { PaymentSummaryCards } from './PaymentSummaryCards'
-export { PaymentHistory } from './PaymentHistory'
-export { PaymentDrawer } from './PaymentDrawer'
+export { PaymentVendorNotSelected } from "./PaymentVendorNotSelected";
+export { PaymentSummaryCards } from "./PaymentSummaryCards";
+export { PaymentHistory } from "./PaymentHistory";
+export { PaymentDrawer } from "./PaymentDrawer";
 
 export interface PaymentSectionProps {
-  itemName: string
-  selected?: Candidate
-  estimate: number
-  paid: number
-  remaining: number
-  status: string
-  transactions: Payment[]
+  itemName: string;
+  selected?: Candidate;
+  estimate: number;
+  paid: number;
+  remaining: number;
+  status: string;
+  transactions: Payment[];
   // eslint-disable-next-line no-unused-vars
-  onSavePayment: (payment: Omit<Payment, 'id' | 'itemId'>) => void
-  onSwitchToReferences?: () => void
+  onSavePayment: (payment: Omit<Payment, "id" | "itemId">) => void;
+  onSwitchToReferences?: () => void;
 }
 
 export function PaymentSection({
@@ -35,8 +35,8 @@ export function PaymentSection({
   onSavePayment,
   onSwitchToReferences,
 }: PaymentSectionProps) {
-  const [drawerOpen, setDrawerOpen] = useState(false)
-  const total = selected ? selected.price : estimate
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const total = selected ? selected.price : estimate;
 
   return (
     <section
@@ -49,10 +49,10 @@ export function PaymentSection({
         <h2 id="payments-title">Pembayaran</h2>
         <span
           className="badge"
-          data-status={status.toLowerCase().replace(/\s+/g, '-')}
-          data-selected={status === 'Lunas'}
+          data-status={status.toLowerCase().replace(/\s+/g, "-")}
+          data-selected={status === "Lunas"}
         >
-          {status === 'Lunas' && <CheckIcon size={12} />}
+          {status === "Lunas" && <CheckIcon size={12} />}
           {status}
         </span>
       </div>
@@ -85,11 +85,6 @@ export function PaymentSection({
         </button>
       )}
 
-      <p className="hint">
-        Simulasi lokal. Data kembali ke contoh saat halaman dimuat ulang atau
-        ditinggalkan.
-      </p>
-
       {drawerOpen && (
         <PaymentDrawer
           itemName={itemName}
@@ -99,7 +94,7 @@ export function PaymentSection({
         />
       )}
     </section>
-  )
+  );
 }
 
-export default PaymentSection
+export default PaymentSection;
