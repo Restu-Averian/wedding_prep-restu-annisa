@@ -74,17 +74,205 @@ export const PlanningPage = styled.div`
   > .text-link { display: inline-flex; align-items: center; min-height: 44px; justify-self: start; }
   .eyebrow { color: #826451; font-size: 0.8125rem; }
   .panel { min-width: 0; padding: 24px; border: 1px solid #e7d9ca; border-radius: 18px; background: #fffdf9; }
-  .filters { display: flex; flex-wrap: wrap; gap: 8px; }
-  .filters button { border: 1px solid #e7d9ca; background: #fffdf9; color: #675344; }
-  .filters button[aria-pressed='true'] { background: #e7d8c5; border-color: #c9ab9b; color: #493426; }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+  .filter-section {
+    display: grid;
+    gap: 14px;
+  }
+  .search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+  .search-input-wrapper .search-icon {
+    position: absolute;
+    left: 14px;
+    color: #826451;
+    pointer-events: none;
+  }
+  .search-input-wrapper input {
+    padding-left: 42px;
+    padding-right: 42px;
+    border: 1px solid #e7d9ca;
+    background: #fffdfa;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  }
+  .search-input-wrapper input:focus {
+    outline: none;
+    border-color: #9c7664;
+    box-shadow: 0 0 0 3px rgba(121, 83, 68, 0.12);
+  }
+  .clear-button {
+    position: absolute;
+    right: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: #f4eae0;
+    color: #675344;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .clear-button:hover {
+    background: #ebd8c8;
+    color: #493426;
+  }
+  .filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding: 2px 2px 8px;
+    margin: 0 -2px -6px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .filters::-webkit-scrollbar {
+    display: none;
+  }
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 38px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid #e7d9ca;
+    background: #fffdfa;
+    color: #675344;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(87, 67, 52, 0.02);
+    transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.15s ease;
+  }
+  .filter-chip:hover {
+    background: #fbf5ee;
+    border-color: #c9ab9b;
+  }
+  .filter-chip[aria-pressed='true'] {
+    background: #795344;
+    border-color: #795344;
+    color: #fffaf2;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(121, 83, 68, 0.22);
+  }
   ul { list-style: none; padding: 0; margin: 0; }
-  .item-grid { display: grid; gap: 16px; }
-  .item-card { display: block; height: 100%; color: inherit; text-decoration: none; }
-  .item-card:hover { background: #fbf5ee; border-color: #c9ab9b; }
-  .item-card h2 { margin: 10px 0 12px; }
-  .price { margin-bottom: 16px; font-variant-numeric: tabular-nums; }
-  .badge { display: inline-block; padding: 6px 10px; border-radius: 20px; background: #f4eae0; color: #675344; font-size: 0.75rem; }
-  .badge[data-selected='true'] { background: #eee0e2; color: #754c54; }
+  .item-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .item-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 16px 14px;
+    border-radius: 16px;
+    background: #fffdfa;
+    border: 1px solid #ebdccf;
+    color: inherit;
+    text-decoration: none;
+    box-shadow: 0 2px 6px rgba(87, 67, 52, 0.02);
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  }
+  .item-card[data-selected='true'] {
+    background: #fffbfa;
+    border-color: #dfcdbf;
+  }
+  .item-card:hover {
+    background: #fbf5ee;
+    border-color: #c9ab9b;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(87, 67, 52, 0.06);
+  }
+  .item-card .card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .card-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: #f4eae0;
+    color: #826451;
+    flex-shrink: 0;
+    transition: background 0.18s ease, color 0.18s ease;
+  }
+  .item-card[data-selected='true'] .card-icon-wrapper {
+    background: #eee0e2;
+    color: #754c54;
+  }
+  .item-card .card-body {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+  }
+  .item-card .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #826451;
+    margin-bottom: 4px;
+  }
+  .item-card h2 {
+    margin: 0;
+    font-size: 0.975rem;
+    line-height: 1.35;
+    color: #493426;
+    word-break: break-word;
+  }
+  .item-card .price {
+    margin: auto 0 0 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #795344;
+    font-variant-numeric: tabular-nums;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: #f4eae0;
+    color: #675344;
+    font-size: clamp(0.625rem, 2.2vw, 0.72rem);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+  }
+  .badge[data-selected='true'] {
+    background: #eee0e2;
+    color: #754c54;
+  }
   .facts { display: grid; gap: 20px; margin: 0 0 24px; }
   dt { font-size: 0.8125rem; margin-bottom: 6px; }
   dd { margin: 0; font-weight: 600; overflow-wrap: anywhere; }
@@ -96,7 +284,24 @@ export const PlanningPage = styled.div`
   .section-heading h2 { margin: 0; }
   .panel > button { margin-top: 16px; }
   @media (min-width: 768px) {
-    .item-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .item-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .item-card {
+      padding: 20px 18px;
+    }
+    .card-icon-wrapper {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+    }
+    .item-card h2 {
+      font-size: 1.15rem;
+    }
+    .item-card .price {
+      font-size: 1.05rem;
+    }
     .facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   }
 `

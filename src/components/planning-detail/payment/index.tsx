@@ -1,20 +1,27 @@
-import { useState } from "react";
-import type { Candidate, Payment } from "../../../data/wedding";
-import { formatRupiah } from "../../../utils/currency";
-import { CheckIcon, InfoIcon, PlusIcon, StoreIcon } from "../Icons";
-import { PaymentDrawer } from "./PaymentDrawer";
+import { useState } from 'react'
+import type { Candidate, Payment } from '../../../data/wedding'
+import { CheckIcon, PlusIcon } from '../Icons'
+import { PaymentDrawer } from './PaymentDrawer'
+import { PaymentVendorNotSelected } from './PaymentVendorNotSelected'
+import { PaymentSummaryCards } from './PaymentSummaryCards'
+import { PaymentHistory } from './PaymentHistory'
+
+export { PaymentVendorNotSelected } from './PaymentVendorNotSelected'
+export { PaymentSummaryCards } from './PaymentSummaryCards'
+export { PaymentHistory } from './PaymentHistory'
+export { PaymentDrawer } from './PaymentDrawer'
 
 export interface PaymentSectionProps {
-  itemName: string;
-  selected?: Candidate;
-  estimate: number;
-  paid: number;
-  remaining: number;
-  status: string;
-  transactions: Payment[];
+  itemName: string
+  selected?: Candidate
+  estimate: number
+  paid: number
+  remaining: number
+  status: string
+  transactions: Payment[]
   // eslint-disable-next-line no-unused-vars
-  onSavePayment: (payment: Omit<Payment, "id" | "itemId">) => void;
-  onSwitchToReferences?: () => void;
+  onSavePayment: (payment: Omit<Payment, 'id' | 'itemId'>) => void
+  onSwitchToReferences?: () => void
 }
 
 export function PaymentSection({
@@ -28,8 +35,8 @@ export function PaymentSection({
   onSavePayment,
   onSwitchToReferences,
 }: PaymentSectionProps) {
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const total = selected ? selected.price : estimate;
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const total = selected ? selected.price : estimate
 
   return (
     <section
@@ -42,112 +49,30 @@ export function PaymentSection({
         <h2 id="payments-title">Pembayaran</h2>
         <span
           className="badge"
-          data-status={status.toLowerCase().replace(/\s+/g, "-")}
-          data-selected={status === "Lunas"}
+          data-status={status.toLowerCase().replace(/\s+/g, '-')}
+          data-selected={status === 'Lunas'}
         >
-          {status === "Lunas" && <CheckIcon size={12} />}
+          {status === 'Lunas' && <CheckIcon size={12} />}
           {status}
         </span>
       </div>
 
       {!selected && (
-        <div className="notice-box payment-notice">
-          <div className="notice-content">
-            <InfoIcon size={20} />
-            <div>
-              <strong>Vendor final belum dipilih.</strong>
-              <p>
-                Perhitungan di bawah menggunakan estimasi awal kebutuhan (
-                {formatRupiah(estimate)}). Anda dapat memilih vendor terlebih
-                dahulu di tab Referensi atau langsung mencatat pembayaran
-                DP/booking.
-              </p>
-            </div>
-          </div>
-          {onSwitchToReferences && (
-            <button
-              type="button"
-              className="secondary select-vendor-shortcut"
-              onClick={onSwitchToReferences}
-            >
-              <StoreIcon size={16} />
-              <span>Pilih Vendor Sekarang</span>
-            </button>
-          )}
-        </div>
+        <PaymentVendorNotSelected
+          estimate={estimate}
+          onSwitchToReferences={onSwitchToReferences}
+        />
       )}
 
-      <div className="payment-summary-cards">
-        <div className="summary-card card-total">
-          <span className="summary-label">
-            {selected ? "Harga Pilihan" : "Estimasi Budget"}
-          </span>
-          <strong className="summary-value">{formatRupiah(total)}</strong>
-          {selected && <span className="summary-sub">{selected.name}</span>}
-        </div>
+      <PaymentSummaryCards
+        selected={selected}
+        total={total}
+        paid={paid}
+        remaining={remaining}
+        transactionCount={transactions.length}
+      />
 
-        <div className="summary-card card-paid">
-          <span className="summary-label">Sudah Dibayar</span>
-          <strong className="summary-value">{formatRupiah(paid)}</strong>
-          <span className="summary-sub">
-            {transactions.length} kali pembayaran
-          </span>
-        </div>
-
-        <div className="summary-card card-remaining">
-          <span className="summary-label">Sisa Pembayaran</span>
-          <strong className="summary-value">{formatRupiah(remaining)}</strong>
-          <span className="summary-sub">
-            {remaining === 0 ? "Sudah Lunas" : "Belum Lunas"}
-          </span>
-        </div>
-      </div>
-
-      <div className="transactions-header">
-        <h3 id="transactions-title">Riwayat Pembayaran</h3>
-        <span className="badge counter-badge">{transactions.length}</span>
-      </div>
-
-      {transactions.length > 0 ? (
-        <ul className="transactions" aria-labelledby="transactions-title">
-          {transactions.map((payment) => (
-            <li key={payment.id} className="transaction-item">
-              <details>
-                <summary>
-                  <span className="transaction-kind">{payment.kind}</span>
-                  <strong className="transaction-amount">
-                    {formatRupiah(payment.amount)}
-                  </strong>
-                </summary>
-                <dl className="transaction-details">
-                  <div>
-                    <dt>Tanggal</dt>
-                    <dd>
-                      <time dateTime={payment.date}>
-                        {new Date(
-                          `${payment.date}T12:00:00`,
-                        ).toLocaleDateString("id-ID", {
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                        })}
-                      </time>
-                    </dd>
-                  </div>
-                  <div>
-                    <dt>Catatan</dt>
-                    <dd>{payment.note || "Tidak ada catatan."}</dd>
-                  </div>
-                </dl>
-              </details>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <div className="empty-box">
-          <p className="muted">Belum ada transaksi pembayaran tercatat.</p>
-        </div>
-      )}
+      <PaymentHistory transactions={transactions} />
 
       {remaining > 0 && (
         <button
@@ -174,5 +99,7 @@ export function PaymentSection({
         />
       )}
     </section>
-  );
+  )
 }
+
+export default PaymentSection

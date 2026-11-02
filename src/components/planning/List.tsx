@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { CATEGORIES, type WeddingItem } from '../../data/wedding'
 import { formatRupiah } from '../../utils/currency'
+import { CATEGORY_ICONS, CheckIcon } from '../../asset'
 
 export interface ListProps {
   items: WeddingItem[]
@@ -20,26 +21,36 @@ export function List({ items, queryString = '' }: ListProps) {
 
   return (
     <ul className="item-grid">
-      {items.map((item) => (
-        <li key={item.id}>
-          <Link
-            className="panel item-card"
-            to={`/rencana/${item.id}${querySuffix}`}
-          >
-            <span className="eyebrow">
-              {CATEGORIES.find(({ id }) => id === item.categoryId)?.name}
-            </span>
-            <h2>{item.name}</h2>
-            <p className="price">{formatRupiah(item.estimate)}</p>
-            <span
-              className="badge"
-              data-selected={!!item.selectedCandidateId}
+      {items.map((item) => {
+        const category = CATEGORIES.find(({ id }) => id === item.categoryId)
+        const IconComponent = CATEGORY_ICONS[item.categoryId]
+        const isSelected = !!item.selectedCandidateId
+
+        return (
+          <li key={item.id}>
+            <Link
+              className="panel item-card"
+              to={`/rencana/${item.id}${querySuffix}`}
+              data-selected={isSelected}
             >
-              {item.selectedCandidateId ? 'Sudah Dipilih' : 'Belum Dipilih'}
-            </span>
-          </Link>
-        </li>
-      ))}
+              <div className="card-top">
+                <div className="card-icon-wrapper" aria-hidden="true">
+                  {IconComponent && <IconComponent size={18} />}
+                </div>
+                <span className="badge" data-selected={isSelected}>
+                  {isSelected && <CheckIcon size={11} />}
+                  <span>{isSelected ? 'Sudah Dipilih' : 'Belum Dipilih'}</span>
+                </span>
+              </div>
+              <div className="card-body">
+                <span className="eyebrow">{category?.name}</span>
+                <h2>{item.name}</h2>
+              </div>
+              <p className="price">{formatRupiah(item.estimate)}</p>
+            </Link>
+          </li>
+        )
+      })}
     </ul>
   )
 }

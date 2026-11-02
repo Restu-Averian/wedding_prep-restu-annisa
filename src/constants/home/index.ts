@@ -4,7 +4,7 @@ import {
   CelebrationIcon,
   GemIcon,
   AkadIcon,
-} from '../../asset/home'
+} from '../../asset'
 import { CATEGORIES as WEDDING_CATEGORIES } from '../../data/wedding'
 import { formatRupiah } from '../../utils/currency'
 

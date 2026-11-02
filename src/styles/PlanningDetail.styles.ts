@@ -419,16 +419,45 @@ export const DetailPage = styled(PlanningPage)`
     min-width: 0;
     overflow-wrap: anywhere;
     box-sizing: border-box;
+    box-shadow: 0 1px 3px rgba(87, 67, 52, 0.02);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .summary-card .card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
+
+  .summary-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    flex-shrink: 0;
   }
 
   .card-total {
-    background: #f7f1ea;
-    border-color: #e8dacd;
+    background: #faf6f0;
+    border-color: #ebdccf;
+  }
+
+  .card-total .summary-icon-wrapper {
+    background: #f0e4d7;
+    color: #795344;
   }
 
   .card-paid {
-    background: #eff7f0;
-    border-color: #d3ebd6;
+    background: #f4f9f5;
+    border-color: #d2e7d6;
+  }
+
+  .card-paid .summary-icon-wrapper {
+    background: #dff0e3;
+    color: #206734;
   }
 
   .card-paid .summary-value {
@@ -436,18 +465,42 @@ export const DetailPage = styled(PlanningPage)`
   }
 
   .card-remaining {
-    background: #fdf1ec;
-    border-color: #f8dad0;
+    background: #fdf5f2;
+    border-color: #f6d8d0;
+  }
+
+  .card-remaining .summary-icon-wrapper {
+    background: #fce4dc;
+    color: #ab3f24;
   }
 
   .card-remaining .summary-value {
     color: #ab3f24;
   }
 
-  .summary-label {
-    font-size: 0.8125rem;
-    color: #7e6858;
+  .card-remaining[data-lunas='true'] {
+    background: #f4f9f5;
+    border-color: #d2e7d6;
+  }
+
+  .card-remaining[data-lunas='true'] .summary-icon-wrapper {
+    background: #dff0e3;
+    color: #206734;
+  }
+
+  .card-remaining[data-lunas='true'] .summary-value {
+    color: #206734;
+  }
+
+  .card-remaining[data-lunas='true'] .summary-sub {
+    color: #206734;
     font-weight: 500;
+  }
+
+  .summary-label {
+    font-size: 0.78125rem;
+    color: #7e6858;
+    font-weight: 600;
   }
 
   .summary-value {
@@ -455,12 +508,15 @@ export const DetailPage = styled(PlanningPage)`
     font-weight: 700;
     color: #493426;
     overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.25;
   }
 
   .summary-sub {
     font-size: 0.75rem;
     color: #8d7668;
     overflow-wrap: anywhere;
+    line-height: 1.3;
   }
 
   /* Transactions */
@@ -552,8 +608,12 @@ export const DetailPage = styled(PlanningPage)`
   /* Responsive Adjustments for Mobile */
   @media (max-width: 600px) {
     .payment-summary-cards {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
+    }
+
+    .payment-summary-cards .card-remaining {
+      grid-column: span 2;
     }
 
     .selected-reference {
