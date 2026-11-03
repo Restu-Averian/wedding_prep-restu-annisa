@@ -419,16 +419,45 @@ export const DetailPage = styled(PlanningPage)`
     min-width: 0;
     overflow-wrap: anywhere;
     box-sizing: border-box;
+    box-shadow: 0 1px 3px rgba(87, 67, 52, 0.02);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .summary-card .card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 2px;
+  }
+
+  .summary-icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    flex-shrink: 0;
   }
 
   .card-total {
-    background: #f7f1ea;
-    border-color: #e8dacd;
+    background: #faf6f0;
+    border-color: #ebdccf;
+  }
+
+  .card-total .summary-icon-wrapper {
+    background: #f0e4d7;
+    color: #795344;
   }
 
   .card-paid {
-    background: #eff7f0;
-    border-color: #d3ebd6;
+    background: #f4f9f5;
+    border-color: #d2e7d6;
+  }
+
+  .card-paid .summary-icon-wrapper {
+    background: #dff0e3;
+    color: #206734;
   }
 
   .card-paid .summary-value {
@@ -436,18 +465,42 @@ export const DetailPage = styled(PlanningPage)`
   }
 
   .card-remaining {
-    background: #fdf1ec;
-    border-color: #f8dad0;
+    background: #fdf5f2;
+    border-color: #f6d8d0;
+  }
+
+  .card-remaining .summary-icon-wrapper {
+    background: #fce4dc;
+    color: #ab3f24;
   }
 
   .card-remaining .summary-value {
     color: #ab3f24;
   }
 
-  .summary-label {
-    font-size: 0.8125rem;
-    color: #7e6858;
+  .card-remaining[data-lunas='true'] {
+    background: #f4f9f5;
+    border-color: #d2e7d6;
+  }
+
+  .card-remaining[data-lunas='true'] .summary-icon-wrapper {
+    background: #dff0e3;
+    color: #206734;
+  }
+
+  .card-remaining[data-lunas='true'] .summary-value {
+    color: #206734;
+  }
+
+  .card-remaining[data-lunas='true'] .summary-sub {
+    color: #206734;
     font-weight: 500;
+  }
+
+  .summary-label {
+    font-size: 0.78125rem;
+    color: #7e6858;
+    font-weight: 600;
   }
 
   .summary-value {
@@ -455,12 +508,15 @@ export const DetailPage = styled(PlanningPage)`
     font-weight: 700;
     color: #493426;
     overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.25;
   }
 
   .summary-sub {
     font-size: 0.75rem;
     color: #8d7668;
     overflow-wrap: anywhere;
+    line-height: 1.3;
   }
 
   /* Transactions */
@@ -477,6 +533,7 @@ export const DetailPage = styled(PlanningPage)`
     padding: 2px 8px;
     border-radius: 10px;
     font-size: 0.75rem;
+    font-weight: 600;
   }
 
   .transactions {
@@ -490,25 +547,38 @@ export const DetailPage = styled(PlanningPage)`
 
   .transaction-item {
     border: 1px solid #ebdcd0;
-    border-radius: 12px;
+    border-radius: 14px;
     background: #fffdfa;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     overflow: hidden;
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
+    box-shadow: 0 1px 3px rgba(85, 58, 42, 0.04);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .transaction-item:hover {
+    border-color: #d8c2b0;
+    box-shadow: 0 2px 6px rgba(85, 58, 42, 0.07);
   }
 
   .transaction-item summary {
     cursor: pointer;
-    padding: 14px 16px;
-    min-height: 48px;
+    padding: 12px 16px;
+    min-height: 52px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
     font-size: 0.9375rem;
-    overflow-wrap: anywhere;
+    list-style: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .transaction-item summary::-webkit-details-marker {
+    display: none;
   }
 
   .transaction-item details[open] summary {
@@ -516,25 +586,174 @@ export const DetailPage = styled(PlanningPage)`
     background: #faf5ee;
   }
 
-  .transaction-kind {
-    font-weight: 600;
-    color: #553a2a;
+  .transaction-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
     min-width: 0;
-    overflow-wrap: anywhere;
   }
 
-  .transaction-amount {
-    color: #795344;
+  .transaction-kind-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 2px 8px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    text-transform: capitalize;
+  }
+
+  .transaction-kind-badge[data-kind='dp'] {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+  }
+
+  .transaction-kind-badge[data-kind='cicilan'] {
+    background: #ede9fe;
+    color: #6b21a8;
+    border: 1px solid #ddd6fe;
+  }
+
+  .transaction-kind-badge[data-kind='pelunasan'] {
+    background: #deede0;
+    color: #276738;
+    border: 1px solid #cce3d0;
+  }
+
+  .transaction-date-quick {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8125rem;
+    color: #8d7668;
+    font-weight: 500;
+  }
+
+  .transaction-date-quick svg {
+    color: #a48c7c;
+  }
+
+  .transaction-value {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     flex-shrink: 0;
   }
 
+  .transaction-amount {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #493426;
+    letter-spacing: -0.01em;
+  }
+
+  .chevron-indicator {
+    color: #9f8877;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+  }
+
+  .transaction-item details[open] .chevron-indicator {
+    transform: rotate(180deg);
+    color: #6d5341;
+  }
+
   .transaction-details {
-    display: grid;
-    gap: 10px;
-    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px 18px;
     margin: 0;
     background: #fffdfa;
-    overflow-wrap: anywhere;
+    font-size: 0.875rem;
+  }
+
+  .detail-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .detail-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #8d7668;
+    line-height: 1.2;
+  }
+
+  .detail-label svg {
+    color: #a48c7c;
+  }
+
+  .detail-text {
+    color: #493426;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.4;
+    padding-left: 1px;
+  }
+
+  .detail-note {
+    background: #fbf7f2;
+    border: 1px solid #ebdcd0;
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: #553a2a;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  .muted-note {
+    color: #a48c7c;
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  .payment-empty-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 20px;
+    background: #fbf7f1;
+    border: 1.5px dashed #ddcfbe;
+    border-radius: 16px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .payment-empty-box .empty-icon-wrap {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #f0e5d8;
+    color: #795344;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+
+  .payment-empty-box .empty-title {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: #493426;
+    margin: 0 0 6px;
+  }
+
+  .payment-empty-box .empty-subtitle {
+    font-size: 0.8125rem;
+    color: #8d7668;
+    margin: 0;
+    max-width: 320px;
+    line-height: 1.4;
   }
 
   .empty-box {
@@ -552,8 +771,12 @@ export const DetailPage = styled(PlanningPage)`
   /* Responsive Adjustments for Mobile */
   @media (max-width: 600px) {
     .payment-summary-cards {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
+    }
+
+    .payment-summary-cards .card-remaining {
+      grid-column: span 2;
     }
 
     .selected-reference {
@@ -584,6 +807,15 @@ export const DetailPage = styled(PlanningPage)`
 
     .section-heading {
       align-items: flex-start;
+    }
+
+    .transaction-item summary {
+      padding: 12px 14px;
+      gap: 8px;
+    }
+
+    .transaction-amount {
+      font-size: 0.9375rem;
     }
   }
 `

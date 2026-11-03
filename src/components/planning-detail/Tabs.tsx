@@ -2,18 +2,18 @@ import { StoreIcon, WalletIcon } from './Icons'
 
 export type DetailTabKey = 'references' | 'payments'
 
-export interface DetailTabsProps {
+export interface TabsProps {
   activeTab: DetailTabKey
   // eslint-disable-next-line no-unused-vars
   onChangeTab: (tab: DetailTabKey) => void
   referenceCount: number
 }
 
-export function DetailTabs({
+export function Tabs({
   activeTab,
   onChangeTab,
   referenceCount,
-}: DetailTabsProps) {
+}: TabsProps) {
   return (
     <div className="tab-bar" role="tablist" aria-label="Menu Detail Rencana">
       <button
