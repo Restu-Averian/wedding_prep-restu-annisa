@@ -2,7 +2,7 @@ import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
 import { formatRupiah } from "../../../utils/currency";
 import { CheckIcon, ClockIcon, WalletIcon } from "../../../asset";
 
-export function PaymentSummaryCards() {
+export default function PaymentSummaryCards() {
   const { selected, total, paid, remaining, transactions } = usePlanningCtx();
   const transactionCount = transactions.filter(
     (payment) => !payment.voidedAt,

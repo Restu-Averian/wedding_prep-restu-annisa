@@ -1,6 +1,6 @@
 import type { Dashboard } from "../../context/planning/types";
 import { formatRupiah } from "../../utils/currency";
-export function FinancialCard({ dashboard }: { dashboard: Dashboard }) {
+export default function FinancialCard({ dashboard }: { dashboard: Dashboard }) {
   return (
     <section className="financial-card" aria-labelledby="financial-title">
       <h2 id="financial-title" className="sr-only">

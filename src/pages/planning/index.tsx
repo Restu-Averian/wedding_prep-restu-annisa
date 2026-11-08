@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Header } from "../../components/planning/Header";
-import { Filter } from "../../components/planning/Filter";
-import { List } from "../../components/planning/List";
-import { ItemDrawer } from "../../components/planning/ItemDrawer";
+import Header from "../../components/planning/Header";
+import Filter from "../../components/planning/Filter";
+import List from "../../components/planning/List";
+import ItemDrawer from "../../components/planning/ItemDrawer";
 import { StatusFeedback } from "../../components/common/StatusFeedback";
 import { ItemListSkeleton } from "../../components/common/Skeletons";
 import { useApi } from "../../api/client";
@@ -48,39 +48,19 @@ export default function Planning() {
 
   return (
     <PlanningPage>
-      <Header />
+      <Header
+        onAdd={() => setAdding(true)}
+        canAdd={Boolean(categories.data)}
+      />
       <Filter
         search={search}
+        selection={params.get("selection") ?? "all"}
         selectedCategoryId={category?.id}
         onUpdateFilter={updateFilter}
         categoryList={categories.data ?? []}
       />
-      <div className="filters" role="group" aria-label="Filter pilihan final">
-        {[
-          ["all", "Semua Status"],
-          ["selected", "Sudah Dipilih"],
-          ["unselected", "Belum Dipilih"],
-        ].map(([value, label]) => (
-          <button
-            type="button"
-            className="filter-chip"
-            key={value}
-            aria-pressed={(params.get("selection") ?? "all") === value}
-            onClick={() => updateFilter("selection", value)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-      <button
-        className="primary"
-        type="button"
-        disabled={!categories.data}
-        onClick={() => setAdding(true)}
-      >
-        Tambah Kebutuhan
-      </button>
       {(items.loading || categories.loading) && <ItemListSkeleton count={6} />}
+
       {categories.error && (
         <StatusFeedback
           type="error"
@@ -89,6 +69,7 @@ export default function Planning() {
           onRetry={categories.retry}
         />
       )}
+
       {items.error && (
         <StatusFeedback
           type="error"
@@ -97,9 +78,11 @@ export default function Planning() {
           onRetry={items.retry}
         />
       )}
+
       {!items.loading && items.data && (
         <List items={items.data} queryString={params.toString()} />
       )}
+
       {adding && categories.data && (
         <ItemDrawer
           categories={categories.data}

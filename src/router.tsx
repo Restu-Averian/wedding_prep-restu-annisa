@@ -12,7 +12,9 @@ export const ROUTES: RouteObject[] = [
     element: <WeddingLayout />,
     children: [
       { path: "/", element: <Home /> },
+
       { path: "/rencana", element: <Planning /> },
+
       {
         path: "/rencana/:itemId",
         element: (
@@ -21,7 +23,9 @@ export const ROUTES: RouteObject[] = [
           </PlanningCtxProvider>
         ),
       },
+
       { path: "/pembayaran", loader: () => redirect("/rencana") },
+
       { path: "*", element: <NotFound /> },
     ],
   },

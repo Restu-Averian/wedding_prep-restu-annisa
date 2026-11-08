@@ -3,7 +3,7 @@ import type { Category, WeddingItem } from "../../context/planning/types";
 import { api } from "../../api/client";
 import { PaymentSheet } from "../../styles/Planning.styles";
 
-export function ItemDrawer({
+export default function ItemDrawer({
   item,
   categories,
   categoryId,

@@ -9,14 +9,14 @@ import {
 import type { Candidate } from "../../../context/planning/types";
 import { ReferenceSheet } from "../../../styles/PlanningDetail.styles";
 import { formatRupiah } from "../../../utils/currency";
-import { TrashIcon } from "../../../asset";
+import { EditIcon, ImageIcon, TrashIcon } from "../../../asset";
 
 export interface ReferenceDrawerProps {
   candidate: Candidate | null;
   onClose: (saved?: boolean) => void;
 }
 
-export function ReferenceDrawer({ candidate, onClose }: ReferenceDrawerProps) {
+export default function ReferenceDrawer({ candidate, onClose }: ReferenceDrawerProps) {
   const { item, selectedId, transactions, busy, mutate, saveReference } =
     usePlanningCtx();
   const minimumPrice = 0;
@@ -227,38 +227,73 @@ export function ReferenceDrawer({ candidate, onClose }: ReferenceDrawerProps) {
           defaultValue={candidate?.note ?? ""}
         />
         <label htmlFor="reference-image">Gambar (opsional)</label>
+
         <input
           id="reference-image"
           ref={fileRef}
           type="file"
+          className="sr-only"
           accept="image/jpeg,image/png,image/webp"
           disabled={readingImage || busy}
           onChange={chooseImage}
           aria-describedby="reference-image-hint"
         />
 
-        <p id="reference-image-hint" className="field-hint">
-          JPEG, PNG, atau WebP, maksimal 5 MB. Gambar tidak diunggah ke server.
-        </p>
+        {!image ? (
+          <label
+            htmlFor="reference-image"
+            className={`image-dropzone ${readingImage ? "is-reading" : ""}`}
+          >
+            <div className="dropzone-icon-circle" aria-hidden="true">
+              <ImageIcon size={22} />
+            </div>
 
-        {readingImage && <p role="status">Membaca gambar…</p>}
+            <div className="dropzone-text-group">
+              <span className="dropzone-title">
+                {readingImage ? "Membaca gambar…" : "Pilih Foto Referensi"}
+              </span>
+              <span id="reference-image-hint" className="dropzone-subtitle">
+                JPEG, PNG, WebP · Maksimal 5 MB
+              </span>
+            </div>
+          </label>
+        ) : (
+          <div className="image-preview-card">
+            <img
+              src={image}
+              alt="Preview foto referensi"
+              className="preview-thumb"
+            />
 
-        {image && (
-          <div className="image-preview">
-            <img src={image} alt="Preview gambar referensi" />
+            <div className="preview-details">
+              <span className="preview-label">Foto referensi terpilih</span>
 
-            <button
-              className="secondary"
-              type="button"
-              disabled={readingImage || busy}
-              onClick={() => {
-                setImage(undefined);
-                setError("");
-                if (fileRef.current) fileRef.current.value = "";
-              }}
-            >
-              Hapus Gambar
-            </button>
+              <div className="preview-actions">
+                <button
+                  type="button"
+                  className="secondary preview-change-btn"
+                  disabled={readingImage || busy}
+                  onClick={() => fileRef.current?.click()}
+                >
+                  <EditIcon size={14} />
+                  <span>Ganti</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="preview-remove-btn"
+                  disabled={readingImage || busy}
+                  onClick={() => {
+                    setImage(undefined);
+                    setError("");
+                    if (fileRef.current) fileRef.current.value = "";
+                  }}
+                >
+                  <TrashIcon size={14} />
+                  <span>Hapus</span>
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

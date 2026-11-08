@@ -13,7 +13,7 @@ export interface ReferenceItemProps {
   onEdit: (candidate: Candidate) => void;
 }
 
-export function ReferenceItem({ candidate, onEdit }: ReferenceItemProps) {
+export default function ReferenceItem({ candidate, onEdit }: ReferenceItemProps) {
   const { item, selectedId, transactions, busy, mutate } = usePlanningCtx();
   const isSelected = candidate.id === selectedId;
   const cannotSelect = busy || transactions.length > 0;
@@ -41,6 +41,7 @@ export function ReferenceItem({ candidate, onEdit }: ReferenceItemProps) {
             <h3 className="reference-title">{candidate.name}</h3>
 
             <p className="reference-price">{formatRupiah(candidate.price)}</p>
+
             {isSelected && item?.agreedAmount !== candidate.price && (
               <p className="hint">
                 Harga kesepakatan: {formatRupiah(item?.agreedAmount ?? 0)}
@@ -55,6 +56,7 @@ export function ReferenceItem({ candidate, onEdit }: ReferenceItemProps) {
                 rel="noopener noreferrer"
               >
                 <span>Lihat vendor / produk</span>
+
                 <ExternalLinkIcon size={12} />
               </a>
             ) : (
@@ -78,6 +80,7 @@ export function ReferenceItem({ candidate, onEdit }: ReferenceItemProps) {
         {isSelected ? (
           <div className="badge-selected-status">
             <CheckIcon size={14} />
+
             <span>Sedang Digunakan Sebagai Pilihan Final</span>
           </div>
         ) : (
@@ -108,5 +111,3 @@ export function ReferenceItem({ candidate, onEdit }: ReferenceItemProps) {
     </li>
   );
 }
-
-export default ReferenceItem;

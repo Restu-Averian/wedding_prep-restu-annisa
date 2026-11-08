@@ -3,7 +3,7 @@ import { CATEGORY_ICONS } from "../../asset";
 import type { Dashboard } from "../../context/planning/types";
 import { formatRupiah } from "../../utils/currency";
 
-export function CategoryGrid({ categories }: { categories: Dashboard["categories"] }) {
+export default function CategoryGrid({ categories }: { categories: Dashboard["categories"] }) {
   return (
     <section className="categories" aria-labelledby="categories-title">
       <div className="categories-header">

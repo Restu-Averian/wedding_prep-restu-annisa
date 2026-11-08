@@ -3,13 +3,21 @@ import { CATEGORY_ICONS, GridIcon, SearchIcon, CloseIcon } from "../../asset";
 
 export interface FilterProps {
   search: string;
+  selection?: string;
   selectedCategoryId?: string;
   onUpdateFilter: (key: string, value: string) => void;
   categoryList?: readonly { id: string; name: string }[];
 }
 
-export function Filter({
+const STATUS_FILTERS = [
+  ["all", "Semua"],
+  ["selected", "Sudah Dipilih"],
+  ["unselected", "Belum Dipilih"],
+] as const;
+
+export default function Filter({
   search,
+  selection = "all",
   selectedCategoryId,
   onUpdateFilter,
   categoryList = DEFAULT_CATEGORIES,
@@ -45,37 +53,55 @@ export function Filter({
         </div>
       </div>
 
-      <div className="filters" role="group" aria-label="Filter kategori">
-        <button
-          type="button"
-          className="filter-chip"
-          aria-pressed={!selectedCategoryId}
-          onClick={() => onUpdateFilter("kategori", "")}
-        >
-          <GridIcon size={15} />
-          <span>Semua</span>
-        </button>
+      <div
+        className="status-segmented-bar"
+        role="group"
+        aria-label="Filter status pilihan"
+      >
+        {STATUS_FILTERS.map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            className="status-segmented-tab"
+            aria-pressed={selection === value}
+            onClick={() => onUpdateFilter("selection", value)}
+          >
+            <span>{label}</span>
+          </button>
+        ))}
+      </div>
 
-        {categoryList.map(({ id, name }) => {
-          const IconComponent = CATEGORY_ICONS[id];
+      <div className="category-scroll-container">
+        <div className="filters" role="group" aria-label="Filter kategori">
+          <button
+            type="button"
+            className="filter-chip"
+            aria-pressed={!selectedCategoryId}
+            onClick={() => onUpdateFilter("kategori", "")}
+          >
+            <GridIcon size={15} />
+            <span>Semua</span>
+          </button>
 
-          return (
-            <button
-              key={id}
-              type="button"
-              className="filter-chip"
-              aria-pressed={selectedCategoryId === id}
-              onClick={() => onUpdateFilter("kategori", id)}
-            >
-              {IconComponent && <IconComponent size={15} />}
+          {categoryList.map(({ id, name }) => {
+            const IconComponent = CATEGORY_ICONS[id];
 
-              <span>{name}</span>
-            </button>
-          );
-        })}
+            return (
+              <button
+                key={id}
+                type="button"
+                className="filter-chip"
+                aria-pressed={selectedCategoryId === id}
+                onClick={() => onUpdateFilter("kategori", id)}
+              >
+                {IconComponent && <IconComponent size={15} />}
+
+                <span>{name}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
 }
-
-export default Filter;

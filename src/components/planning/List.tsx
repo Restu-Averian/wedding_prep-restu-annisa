@@ -9,7 +9,7 @@ export interface ListProps {
   queryString?: string;
 }
 
-export function List({ items, queryString = "" }: ListProps) {
+export default function List({ items, queryString = "" }: ListProps) {
   if (!items.length) {
     return (
       <StatusFeedback
@@ -59,5 +59,3 @@ export function List({ items, queryString = "" }: ListProps) {
     </ul>
   );
 }
-
-export default List;

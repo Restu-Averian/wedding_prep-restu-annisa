@@ -8,7 +8,7 @@ import {
   ReceiptIcon,
 } from "../../../asset";
 
-export function PaymentHistory() {
+export default function PaymentHistory() {
   const { transactions } = usePlanningCtx();
   return (
     <>

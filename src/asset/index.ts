@@ -22,9 +22,13 @@ export { EditIcon } from "./EditIcon";
 export { InfoIcon } from "./InfoIcon";
 export { CalendarIcon } from "./CalendarIcon";
 export { ChevronDownIcon } from "./ChevronDownIcon";
+export { ChevronLeftIcon } from "./ChevronLeftIcon";
 export { NoteIcon } from "./NoteIcon";
 export { ReceiptIcon } from "./ReceiptIcon";
 export { TrashIcon } from "./TrashIcon";
+export { ImageIcon } from "./ImageIcon";
+export { HomeIcon } from "./HomeIcon";
+export { PlannerIcon } from "./PlannerIcon";
 
 export const CATEGORY_ICONS: Record<
   string,

@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 import { useApi } from "../api/client";
 import type { Dashboard } from "../context/planning/types";
-import { CategoryGrid } from "../components/home/CategoryGrid";
-import { FinancialCard } from "../components/home/FinancialCard";
-import { Header } from "../components/home/Header";
+import CategoryGrid from "../components/home/CategoryGrid";
+import FinancialCard from "../components/home/FinancialCard";
+import Header from "../components/home/Header";
 import { StatusFeedback } from "../components/common/StatusFeedback";
 import {
   FinancialCardSkeleton,

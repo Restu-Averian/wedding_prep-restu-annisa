@@ -2,7 +2,7 @@ import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
 import { formatRupiah } from "../../../utils/currency";
 import { InfoIcon, StoreIcon } from "../../../asset";
 
-export function PaymentVendorNotSelected() {
+export default function PaymentVendorNotSelected() {
   const { item, setActiveTab } = usePlanningCtx();
   const estimate = item?.estimatedAmount ?? 0;
   return (

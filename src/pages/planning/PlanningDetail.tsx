@@ -1,12 +1,17 @@
 import { Link, useSearchParams } from "react-router-dom";
-import { Header } from "../../components/planning-detail/Header";
-import { Tabs } from "../../components/planning-detail/Tabs";
-import { ReferenceSection } from "../../components/planning-detail/references";
-import { PaymentSection } from "../../components/planning-detail/payment";
+import Header from "../../components/planning-detail/Header";
+import Tabs from "../../components/planning-detail/Tabs";
+import ReferenceSection from "../../components/planning-detail/references";
+import PaymentSection from "../../components/planning-detail/payment";
 import { StatusFeedback } from "../../components/common/StatusFeedback";
 import { DetailSkeleton } from "../../components/common/Skeletons";
 import { usePlanningCtx } from "../../context/planning/PlanningCtxProvider";
-import { DetailPage } from "../../styles/PlanningDetail.styles";
+import {
+  DetailPage,
+  DetailTopBar,
+  BackLink,
+} from "../../styles/PlanningDetail.styles";
+import { ChevronLeftIcon } from "../../asset";
 
 export default function PlanningDetail() {
   const { item, activeTab, selected, loading, error, retry, mutationError } =
@@ -28,9 +33,14 @@ export default function PlanningDetail() {
     const isAccess = /akses|origin|forbidden/i.test(error);
     return (
       <DetailPage>
-        <Link className="text-link" to={BACK_TO}>
-          ← Kembali ke Rencana
-        </Link>
+        <DetailTopBar>
+          <BackLink to={BACK_TO} aria-label="Kembali ke daftar rencana">
+            <ChevronLeftIcon size={18} />
+            <span className="back-label-mobile">Rencana</span>
+            <span className="back-label-desktop">Kembali ke Rencana</span>
+          </BackLink>
+        </DetailTopBar>
+
         <StatusFeedback
           type={isAccess ? "access" : "error"}
           title={isAccess ? "Akses Dibatasi" : "Gagal Memuat Kebutuhan"}
@@ -44,9 +54,14 @@ export default function PlanningDetail() {
   if (!item) {
     return (
       <DetailPage>
-        <Link className="text-link" to={BACK_TO}>
-          ← Kembali ke Rencana
-        </Link>
+        <DetailTopBar>
+          <BackLink to={BACK_TO} aria-label="Kembali ke daftar rencana">
+            <ChevronLeftIcon size={18} />
+            <span className="back-label-mobile">Rencana</span>
+            <span className="back-label-desktop">Kembali ke Rencana</span>
+          </BackLink>
+        </DetailTopBar>
+
         <StatusFeedback
           type="empty"
           title="Kebutuhan Tidak Ditemukan"
@@ -63,9 +78,19 @@ export default function PlanningDetail() {
 
   return (
     <DetailPage>
-      <Link className="text-link" to={BACK_TO}>
-        ← Kembali ke Rencana
-      </Link>
+      <DetailTopBar>
+        <BackLink to={BACK_TO} aria-label="Kembali ke daftar rencana">
+          <ChevronLeftIcon size={18} />
+          <span className="back-label-mobile">Rencana</span>
+          <span className="back-label-desktop">Kembali ke Rencana</span>
+        </BackLink>
+
+        <span className="top-bar-title">{item.name}</span>
+
+        {item.category?.name && (
+          <span className="top-bar-pill">{item.category.name}</span>
+        )}
+      </DetailTopBar>
 
       <Header />
 

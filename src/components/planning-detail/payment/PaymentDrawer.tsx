@@ -12,7 +12,7 @@ export interface PaymentDrawerProps {
   onClose: () => void;
 }
 
-export function PaymentDrawer({ onClose }: PaymentDrawerProps) {
+export default function PaymentDrawer({ onClose }: PaymentDrawerProps) {
   const { item, remaining, busy, mutate } = usePlanningCtx();
   const [error, setError] = useState("");
   const [isClosing, setIsClosing] = useState(false);
@@ -180,5 +180,3 @@ export function PaymentDrawer({ onClose }: PaymentDrawerProps) {
     </PaymentSheet>
   );
 }
-
-export default PaymentDrawer;

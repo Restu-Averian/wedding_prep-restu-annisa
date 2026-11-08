@@ -1,7 +1,7 @@
 import { usePlanningCtx } from "../../context/planning/PlanningCtxProvider";
 import { StoreIcon, WalletIcon } from "../../asset";
 
-export function Tabs() {
+export default function Tabs() {
   const { activeTab, setActiveTab, references, selected } = usePlanningCtx();
   return (
     <div className="tab-bar" role="tablist" aria-label="Menu Detail Rencana">

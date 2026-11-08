@@ -2,10 +2,10 @@ import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
 import { useState } from "react";
 import type { Candidate } from "../../../context/planning/types";
 import { PlusIcon, InfoIcon, StoreIcon } from "../../../asset";
-import { ReferenceDrawer } from "./ReferenceDrawer";
-import { ReferenceItem } from "./ReferenceItem";
+import ReferenceDrawer from "./ReferenceDrawer";
+import ReferenceItem from "./ReferenceItem";
 
-export function ReferenceSection() {
+export default function ReferenceSection() {
   const [referenceDraft, setReferenceDraft] = useState<
     Candidate | null | undefined
   >(undefined);
