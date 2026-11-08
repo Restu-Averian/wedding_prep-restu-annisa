@@ -1,3 +1,4 @@
+import { PAYMENT_LABELS, type Payment } from "../../../context/planning/types";
 import AmountInput from "../../AmountInput";
 import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
 import {
@@ -19,10 +20,18 @@ function formatFileSize(bytes: number): string {
 
 export interface PaymentDrawerProps {
   onClose: () => void;
+  payment?: Payment;
 }
 
-export default function PaymentDrawer({ onClose }: PaymentDrawerProps) {
+export default function PaymentDrawer({
+  onClose,
+  payment,
+}: PaymentDrawerProps) {
   const { item, remaining, busy, mutate } = usePlanningCtx();
+  const maxAmount = Math.min(
+    1_000_000_000_000,
+    remaining + (payment?.amount ?? 0),
+  );
   const [error, setError] = useState("");
   const [paymentSaved, setPaymentSaved] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -146,7 +155,9 @@ export default function PaymentDrawer({ onClose }: PaymentDrawerProps) {
       onClose={onClose}
     >
       <div className="sheet-heading">
-        <h2 id="drawer-title">Catat Pembayaran</h2>
+        <h2 id="drawer-title">
+          {payment ? "Edit Pembayaran" : "Catat Pembayaran"}
+        </h2>
 
         <button
           type="button"
@@ -164,7 +175,14 @@ export default function PaymentDrawer({ onClose }: PaymentDrawerProps) {
       <form
         onSubmit={async (event) => {
           event.preventDefault();
-          if (!item || isClosing || paymentSaved || submittingRef.current) {
+          if (
+            !item ||
+            payment?.voidedAt ||
+            isClosing ||
+            paymentSaved ||
+            busy ||
+            submittingRef.current
+          ) {
             return;
           }
 
@@ -179,7 +197,7 @@ export default function PaymentDrawer({ onClose }: PaymentDrawerProps) {
           if (
             !Number.isSafeInteger(amount) ||
             amount <= 0 ||
-            amount > remaining ||
+            amount > maxAmount ||
             !["DP", "Cicilan", "Pelunasan"].includes(kind) ||
             !date ||
             !form.checkValidity()
@@ -222,11 +240,27 @@ export default function PaymentDrawer({ onClose }: PaymentDrawerProps) {
               payload.set("invoice", invoice);
             }
 
-            await mutate("/payments", "POST", payload);
+            if (payment) {
+              await mutate(
+                `/payments/${encodeURIComponent(payment.id)}`,
+                "PATCH",
+                {
+                  type: types[kind as keyof typeof types],
+                  amount,
+                  paidAt: date,
+                  note: String(data.get("note") ?? "").trim(),
+                },
+              );
+            } else {
+              await mutate("/payments", "POST", payload);
+            }
             submittingRef.current = false;
             handleClose();
           } catch (error) {
-            if (error instanceof Error && error.name === "PaymentSavedError") {
+            if (
+              error instanceof Error &&
+              ["PaymentSavedError", "MutationSavedError"].includes(error.name)
+            ) {
               setPaymentSaved(true);
             }
 
@@ -244,7 +278,12 @@ export default function PaymentDrawer({ onClose }: PaymentDrawerProps) {
         }}
       >
         <label htmlFor="payment-kind">Jenis pembayaran</label>
-        <select id="payment-kind" name="kind" required defaultValue="">
+        <select
+          id="payment-kind"
+          name="kind"
+          required
+          defaultValue={payment ? PAYMENT_LABELS[payment.type] : ""}
+        >
           <option value="" disabled>
             Pilih jenis pembayaran
           </option>
@@ -258,102 +297,120 @@ export default function PaymentDrawer({ onClose }: PaymentDrawerProps) {
           id="payment-amount"
           name="amount"
           min={1}
-          max={remaining}
+          max={maxAmount}
+          defaultValue={payment?.amount}
           inputMode="numeric"
           required
           placeholder="Contoh: 100,000"
         />
 
         <label htmlFor="payment-date">Tanggal</label>
-        <input id="payment-date" name="date" type="date" required />
+        <input
+          id="payment-date"
+          name="date"
+          type="date"
+          required
+          defaultValue={payment?.paidAt}
+        />
 
         <label htmlFor="payment-note">Catatan (opsional)</label>
         <textarea
           id="payment-note"
           name="note"
+          defaultValue={payment?.note ?? ""}
           rows={3}
           maxLength={500}
           placeholder="Catatan pembayaran…"
         />
 
-        <label htmlFor="payment-invoice">Invoice (opsional)</label>
-        <input
-          id="payment-invoice"
-          name="invoice"
-          ref={fileInputRef}
-          type="file"
-          className="sr-only"
-          accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
-          aria-describedby="payment-invoice-help"
-          disabled={busy || paymentSaved}
-          onChange={handleFileChange}
-        />
-
-        {!invoiceFile ? (
-          <label htmlFor="payment-invoice" className="image-dropzone">
-            <div className="dropzone-icon-circle" aria-hidden="true">
-              <ReceiptIcon size={22} />
-            </div>
-
-            <div className="dropzone-text-group">
-              <span className="dropzone-title">Upload Invoice Pembayaran</span>
-              <span id="payment-invoice-help" className="dropzone-subtitle">
-                PDF, JPG, atau PNG · Maksimal 5 MB
-              </span>
-            </div>
-          </label>
+        {payment ? (
+          payment.invoice && (
+            <p>Invoice dipertahankan: {payment.invoice.name}</p>
+          )
         ) : (
-          <div className="image-preview-card">
-            {previewUrl ? (
-              <img
-                src={previewUrl}
-                alt="Preview invoice"
-                className="preview-thumb"
-              />
+          <>
+            <label htmlFor="payment-invoice">Invoice (opsional)</label>
+            <input
+              id="payment-invoice"
+              name="invoice"
+              ref={fileInputRef}
+              type="file"
+              className="sr-only"
+              accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+              aria-describedby="payment-invoice-help"
+              disabled={busy || paymentSaved}
+              onChange={handleFileChange}
+            />
+
+            {!invoiceFile ? (
+              <label htmlFor="payment-invoice" className="image-dropzone">
+                <div className="dropzone-icon-circle" aria-hidden="true">
+                  <ReceiptIcon size={22} />
+                </div>
+
+                <div className="dropzone-text-group">
+                  <span className="dropzone-title">
+                    Upload Invoice Pembayaran
+                  </span>
+                  <span id="payment-invoice-help" className="dropzone-subtitle">
+                    PDF, JPG, atau PNG · Maksimal 5 MB
+                  </span>
+                </div>
+              </label>
             ) : (
-              <div className="preview-pdf-badge" aria-label="Dokumen PDF">
-                <ReceiptIcon size={26} />
-                <span className="pdf-tag">PDF</span>
+              <div className="image-preview-card">
+                {previewUrl ? (
+                  <img
+                    src={previewUrl}
+                    alt="Preview invoice"
+                    className="preview-thumb"
+                  />
+                ) : (
+                  <div className="preview-pdf-badge" aria-label="Dokumen PDF">
+                    <ReceiptIcon size={26} />
+                    <span className="pdf-tag">PDF</span>
+                  </div>
+                )}
+
+                <div className="preview-details">
+                  <div className="preview-status-badge">
+                    <ReceiptIcon size={12} />
+                    <span>Invoice terlampir</span>
+                  </div>
+
+                  <span className="preview-filename" title={invoiceFile.name}>
+                    {invoiceFile.name}
+                  </span>
+
+                  <span className="preview-filesize">
+                    {formatFileSize(invoiceFile.size)}
+                  </span>
+
+                  <div className="preview-actions">
+                    <button
+                      type="button"
+                      className="preview-change-btn"
+                      disabled={busy || paymentSaved}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <EditIcon size={14} />
+                      <span>Ganti</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="preview-remove-btn"
+                      disabled={busy || paymentSaved}
+                      onClick={handleRemoveInvoice}
+                    >
+                      <TrashIcon size={14} />
+                      <span>Hapus</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
-
-            <div className="preview-details">
-              <div className="preview-status-badge">
-                <ReceiptIcon size={12} />
-                <span>Invoice terlampir</span>
-              </div>
-
-              <span className="preview-filename" title={invoiceFile.name}>
-                {invoiceFile.name}
-              </span>
-
-              <span className="preview-filesize">
-                {formatFileSize(invoiceFile.size)}
-              </span>
-
-              <div className="preview-actions">
-                <button
-                  type="button"
-                  className="preview-change-btn"
-                  disabled={busy || paymentSaved}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <EditIcon size={14} />
-                  <span>Ganti</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="preview-remove-btn"
-                  disabled={busy || paymentSaved}
-                  onClick={handleRemoveInvoice}
-                >
-                  <TrashIcon size={14} />
-                  <span>Hapus</span>
-                </button>
-              </div>
-            </div>
-          </div>
+          </>
         )}
 
         {error && <p role="alert">{error}</p>}
@@ -367,7 +424,9 @@ export default function PaymentDrawer({ onClose }: PaymentDrawerProps) {
             ? "Pembayaran Tersimpan"
             : busy
               ? "Menyimpan…"
-              : "Simpan Pembayaran"}
+              : payment
+                ? "Simpan Perubahan"
+                : "Simpan Pembayaran"}
         </button>
       </form>
     </PaymentSheet>

@@ -69,9 +69,9 @@ function PlanningStateProvider({
         data,
       });
 
-      return (
-        result ??
-        (await client.fetchQuery<ItemDetail>({
+      if (result) return result;
+      try {
+        return await client.fetchQuery<ItemDetail>({
           queryKey: queryKeys.detail(itemId),
           queryFn: ({ signal }) =>
             api<ItemDetail>(
@@ -80,8 +80,14 @@ function PlanningStateProvider({
               undefined,
               signal,
             ),
-        }))
-      );
+        });
+      } catch {
+        const error = new Error(
+          "Perubahan sudah tersimpan, tetapi data terbaru gagal dimuat. Muat ulang halaman sebelum melakukan perubahan lagi.",
+        );
+        error.name = "MutationSavedError";
+        throw error;
+      }
     } finally {
       submitting.current = false;
     }

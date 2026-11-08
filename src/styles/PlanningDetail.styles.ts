@@ -787,6 +787,52 @@ export const DetailPage = styled(PlanningPage)`
     color: #654333;
   }
 
+  .unselect-reference-btn,
+  .payment-history-actions button {
+    min-height: 44px;
+    padding: 8px 14px;
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
+    color: #654b3c;
+    font: inherit;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+
+  .unselect-reference-btn {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .payment-history-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .payment-history-actions .payment-delete-btn {
+    color: #a63c22;
+  }
+
+  .unselect-reference-btn:hover:not(:disabled),
+  .payment-history-actions button:hover:not(:disabled) {
+    background: #f3eae0;
+  }
+
+  .unselect-reference-btn:focus-visible,
+  .payment-history-actions button:focus-visible {
+    outline: 2px solid #795344;
+    outline-offset: 2px;
+  }
+
+  .unselect-reference-btn:disabled,
+  .payment-history-actions button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
   .badge-selected-status {
     width: 100%;
     display: inline-flex;

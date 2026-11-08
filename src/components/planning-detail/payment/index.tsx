@@ -1,3 +1,4 @@
+import type { Payment } from "../../../context/planning/types";
 import { useState } from "react";
 import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
 import { CheckIcon, PlusIcon } from "../../../asset";
@@ -12,7 +13,8 @@ export { default as PaymentDrawer } from "./PaymentDrawer";
 
 export default function PaymentSection() {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const { selected, paid, remaining } = usePlanningCtx();
+  const [editingPayment, setEditingPayment] = useState<Payment>();
+  const { selected, paid, remaining, busy } = usePlanningCtx();
   const status = !selected
     ? "Belum Ada Vendor"
     : remaining === 0
@@ -44,20 +46,34 @@ export default function PaymentSection() {
 
       {!selected && <PaymentVendorNotSelected />}
       <PaymentSummaryCards />
-      <PaymentHistory />
+      <PaymentHistory
+        onEdit={(payment) => {
+          setEditingPayment(payment);
+          setDrawerOpen(true);
+        }}
+      />
 
       {remaining > 0 && (
         <button
           className="primary action-pay-btn"
           type="button"
-          onClick={() => setDrawerOpen(true)}
+          disabled={busy}
+          onClick={() => {
+            setEditingPayment(undefined);
+            setDrawerOpen(true);
+          }}
         >
           <PlusIcon size={18} />
           <span>Catat Pembayaran</span>
         </button>
       )}
 
-      {drawerOpen && <PaymentDrawer onClose={() => setDrawerOpen(false)} />}
+      {drawerOpen && (
+        <PaymentDrawer
+          payment={editingPayment}
+          onClose={() => setDrawerOpen(false)}
+        />
+      )}
     </section>
   );
 }

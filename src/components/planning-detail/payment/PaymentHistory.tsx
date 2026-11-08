@@ -1,4 +1,5 @@
-import { PAYMENT_LABELS } from "../../../context/planning/types";
+import { useRef, useState } from "react";
+import { PAYMENT_LABELS, type Payment } from "../../../context/planning/types";
 import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
 import { formatRupiah } from "../../../utils/currency";
 import {
@@ -8,8 +9,60 @@ import {
   ReceiptIcon,
 } from "../../../asset";
 
-export default function PaymentHistory() {
-  const { transactions } = usePlanningCtx();
+export default function PaymentHistory({
+  onEdit,
+}: {
+  onEdit?: (payment: Payment) => void;
+}) {
+  const [feedback, setFeedback] = useState<{
+    id: string;
+    message: string;
+    error: boolean;
+  }>();
+  const [needsReload, setNeedsReload] = useState(false);
+  const [deletingId, setDeletingId] = useState<string>();
+  const submitting = useRef(false);
+  const { transactions, busy, mutate } = usePlanningCtx();
+
+  async function removePayment(payment: Payment) {
+    if (busy || submitting.current || needsReload || payment.voidedAt) {
+      return;
+    }
+
+    if (
+      !window.confirm(
+        `Hapus pembayaran ${formatRupiah(payment.amount)}? Pembayaran akan ditandai dibatalkan dan tidak dihitung dalam total terbayar.`,
+      )
+    ) {
+      return;
+    }
+
+    submitting.current = true;
+    setDeletingId(payment.id);
+    setFeedback(undefined);
+    try {
+      await mutate(`/payments/${encodeURIComponent(payment.id)}`, "DELETE");
+      setFeedback({
+        id: payment.id,
+        message: "Pembayaran dibatalkan. Total terbayar diperbarui.",
+        error: false,
+      });
+    } catch (error) {
+      if (error instanceof Error && error.name === "MutationSavedError") {
+        setNeedsReload(true);
+      }
+
+      setFeedback({
+        id: payment.id,
+        message:
+          error instanceof Error ? error.message : "Pembayaran gagal dihapus.",
+        error: true,
+      });
+    } finally {
+      submitting.current = false;
+      setDeletingId(undefined);
+    }
+  }
 
   return (
     <>
@@ -114,6 +167,36 @@ export default function PaymentHistory() {
                         )}
                       </div>
                     </div>
+                    {!payment.voidedAt && (
+                      <div className="payment-history-actions">
+                        {onEdit && (
+                          <button
+                            type="button"
+                            disabled={busy || !!deletingId || needsReload}
+                            onClick={() => onEdit(payment)}
+                            aria-label={`Edit pembayaran ${formatRupiah(payment.amount)}`}
+                          >
+                            Edit
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          className="payment-delete-btn"
+                          disabled={busy || !!deletingId || needsReload}
+                          onClick={() => {
+                            void removePayment(payment);
+                          }}
+                          aria-label={`Hapus pembayaran ${formatRupiah(payment.amount)}`}
+                        >
+                          {deletingId === payment.id ? "Menghapus…" : "Hapus"}
+                        </button>
+                      </div>
+                    )}
+                    {feedback?.id === payment.id && (
+                      <p role={feedback.error ? "alert" : "status"}>
+                        {feedback.message}
+                      </p>
+                    )}
                   </div>
                 </details>
               </li>

@@ -458,7 +458,11 @@ app.patch("/items/:id/payments/:paymentId", async (c) => {
     throw missing();
   }
 
-  return c.json({ data: await detail(c.env.DB, c.req.param("id")) });
+  try {
+    return c.json({ data: await detail(c.env.DB, c.req.param("id")) });
+  } catch {
+    return c.json({ data: null, meta: { paymentSaved: true } });
+  }
 });
 
 app.delete("/items/:id/payments/:paymentId", async (c) => {
