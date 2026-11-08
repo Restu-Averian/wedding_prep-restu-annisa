@@ -11,6 +11,7 @@ import type { Candidate } from "../../../context/planning/types";
 import { ReferenceSheet } from "../../../styles/PlanningDetail.styles";
 import { formatRupiah } from "../../../utils/currency";
 import { CheckIcon, EditIcon, ImageIcon, TrashIcon } from "../../../asset";
+import { useConfirm } from "../../../context/ConfirmContext";
 
 export interface ReferenceDrawerProps {
   candidate: Candidate | null;
@@ -23,6 +24,7 @@ export default function ReferenceDrawer({
 }: ReferenceDrawerProps) {
   const { item, selectedId, transactions, busy, mutate, saveReference } =
     usePlanningCtx();
+  const confirm = useConfirm();
   const minimumPrice = 0;
   const priceLocked = candidate?.id === selectedId && transactions.length > 0;
   const cannotDelete = transactions.length > 0;
@@ -130,7 +132,13 @@ export default function ReferenceDrawer({
 
   async function deleteCandidate() {
     if (!candidate || cannotDelete || readingImage || busy) return;
-    if (!window.confirm(`Hapus referensi "${candidate.name}"?`)) return;
+    const confirmed = await confirm({
+      title: "Hapus Referensi",
+      message: `Hapus referensi "${candidate.name}"? Data yang dihapus tidak dapat dipulihkan.`,
+      confirmText: "Hapus Referensi",
+      tone: "danger",
+    });
+    if (!confirmed) return;
     try {
       await mutate(`/candidates/${candidate.id}`, "DELETE");
       onClose(true);

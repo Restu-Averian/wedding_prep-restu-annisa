@@ -9,10 +9,11 @@ import {
   Footer,
 } from "../styles/WeddingLayout.styles";
 import { HomeIcon, PlannerIcon } from "../asset";
+import { ConfirmProvider } from "../context/ConfirmContext";
 
 export default function WeddingLayout() {
   return (
-    <>
+    <ConfirmProvider>
       <a className="skip-link" href="#main-content">
         Lewati navigasi
       </a>
@@ -43,6 +44,6 @@ export default function WeddingLayout() {
 
         <Footer>Made with ♡ for our forever</Footer>
       </Main>
-    </>
+    </ConfirmProvider>
   );
 }

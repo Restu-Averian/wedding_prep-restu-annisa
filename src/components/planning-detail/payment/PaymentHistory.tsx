@@ -8,6 +8,7 @@ import {
   NoteIcon,
   ReceiptIcon,
 } from "../../../asset";
+import { useConfirm } from "../../../context/ConfirmContext";
 
 export default function PaymentHistory({
   onEdit,
@@ -22,6 +23,7 @@ export default function PaymentHistory({
   const [needsReload, setNeedsReload] = useState(false);
   const [deletingId, setDeletingId] = useState<string>();
   const submitting = useRef(false);
+  const confirm = useConfirm();
   const { transactions, busy, mutate } = usePlanningCtx();
 
   async function removePayment(payment: Payment) {
@@ -29,11 +31,14 @@ export default function PaymentHistory({
       return;
     }
 
-    if (
-      !window.confirm(
-        `Hapus pembayaran ${formatRupiah(payment.amount)}? Pembayaran akan ditandai dibatalkan dan tidak dihitung dalam total terbayar.`,
-      )
-    ) {
+    const confirmed = await confirm({
+      title: "Batalkan Pembayaran",
+      message: `Hapus pembayaran ${formatRupiah(payment.amount)}? Pembayaran akan ditandai dibatalkan dan tidak dihitung dalam total terbayar.`,
+      confirmText: "Batalkan Pembayaran",
+      tone: "danger",
+    });
+
+    if (!confirmed) {
       return;
     }
 
