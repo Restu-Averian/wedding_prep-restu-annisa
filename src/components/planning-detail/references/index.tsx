@@ -12,8 +12,8 @@ export default function ReferenceSection() {
 
   const { references, selected, setChoosing } = usePlanningCtx();
 
-  const sortedReferences = selected
-    ? [selected, ...references.filter((c) => c.id !== selected.id)]
+  const otherReferences = selected
+    ? references.filter((c) => c.id !== selected.id)
     : references;
 
   return (
@@ -26,6 +26,7 @@ export default function ReferenceSection() {
       <div className="section-heading">
         <div className="section-title-wrap">
           <h2 id="references-title">Referensi Produk / Vendor</h2>
+
           <span className="reference-count-pill">{references.length} Opsi</span>
         </div>
 
@@ -36,6 +37,7 @@ export default function ReferenceSection() {
             onClick={() => setReferenceDraft(null)}
           >
             <PlusIcon size={14} />
+
             <span>Tambah Produk</span>
           </button>
         )}
@@ -45,8 +47,10 @@ export default function ReferenceSection() {
         <div className="notice-box">
           <div className="notice-content">
             <InfoIcon size={18} />
+
             <div>
               <strong>Tentukan Pilihan Final</strong>
+
               <p>
                 Pilih salah satu referensi vendor di bawah untuk mengunci harga
                 dan melanjutkan pembayaran.
@@ -57,31 +61,69 @@ export default function ReferenceSection() {
       )}
 
       {references.length > 0 ? (
-        <ul className="reference-list">
-          {sortedReferences.map((candidate) => (
-            <ReferenceItem
-              key={candidate.id}
-              candidate={candidate}
-              onEdit={setReferenceDraft}
-            />
-          ))}
-        </ul>
+        selected ? (
+          <div className="reference-sections">
+            <div className="reference-group">
+              <p className="reference-group-label">Vendor Terpilih</p>
+
+              <ul className="reference-list">
+                <ReferenceItem
+                  key={selected.id}
+                  candidate={selected}
+                  onEdit={setReferenceDraft}
+                />
+              </ul>
+            </div>
+
+            {otherReferences.length > 0 && (
+              <div className="reference-group">
+                <div className="reference-divider">
+                  <span>Opsi Pembanding ({otherReferences.length})</span>
+                </div>
+
+                <ul className="reference-list">
+                  {otherReferences.map((candidate) => (
+                    <ReferenceItem
+                      key={candidate.id}
+                      candidate={candidate}
+                      onEdit={setReferenceDraft}
+                    />
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        ) : (
+          <ul className="reference-list">
+            {references.map((candidate) => (
+              <ReferenceItem
+                key={candidate.id}
+                candidate={candidate}
+                onEdit={setReferenceDraft}
+              />
+            ))}
+          </ul>
+        )
       ) : (
         <div className="empty-box reference-empty-box">
           <div className="empty-icon-wrap">
             <StoreIcon size={24} />
           </div>
+
           <p className="empty-title">Belum Ada Pilihan Vendor</p>
+
           <p className="empty-subtitle">
             Catat dan simpan opsi vendor atau link produk di sini untuk
             mempermudah perbandingan harga sebelum menentukan pilihan final.
           </p>
+
           <button
             className="primary add-first-btn"
             type="button"
             onClick={() => setReferenceDraft(null)}
           >
             <PlusIcon size={16} />
+
             <span>Tambah Referensi Pertama</span>
           </button>
         </div>

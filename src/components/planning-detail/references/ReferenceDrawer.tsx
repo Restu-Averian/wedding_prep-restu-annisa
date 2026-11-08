@@ -9,14 +9,17 @@ import {
 import type { Candidate } from "../../../context/planning/types";
 import { ReferenceSheet } from "../../../styles/PlanningDetail.styles";
 import { formatRupiah } from "../../../utils/currency";
-import { EditIcon, ImageIcon, TrashIcon } from "../../../asset";
+import { CheckIcon, EditIcon, ImageIcon, TrashIcon } from "../../../asset";
 
 export interface ReferenceDrawerProps {
   candidate: Candidate | null;
   onClose: (saved?: boolean) => void;
 }
 
-export default function ReferenceDrawer({ candidate, onClose }: ReferenceDrawerProps) {
+export default function ReferenceDrawer({
+  candidate,
+  onClose,
+}: ReferenceDrawerProps) {
   const { item, selectedId, transactions, busy, mutate, saveReference } =
     usePlanningCtx();
   const minimumPrice = 0;
@@ -266,12 +269,17 @@ export default function ReferenceDrawer({ candidate, onClose }: ReferenceDrawerP
             />
 
             <div className="preview-details">
-              <span className="preview-label">Foto referensi terpilih</span>
+              <div className="preview-status-badge">
+                <CheckIcon size={12} />
+                <span>Foto siap digunakan</span>
+              </div>
+
+              <span className="preview-subtext">JPEG, PNG, atau WebP</span>
 
               <div className="preview-actions">
                 <button
                   type="button"
-                  className="secondary preview-change-btn"
+                  className="preview-change-btn"
                   disabled={readingImage || busy}
                   onClick={() => fileRef.current?.click()}
                 >

@@ -94,21 +94,23 @@ export function itemView(row: ItemRow) {
 }
 
 export async function detail(db: D1Database, id: string) {
-  const [items, candidates, payments] = await db.batch([
-    db.prepare(`${itemQuery} WHERE id = ?`).bind(id),
+  const [items, candidates, payments] = await db.batch<Record<string, unknown>>(
+    [
+      db.prepare(`${itemQuery} WHERE id = ?`).bind(id),
 
-    db
-      .prepare(
-        "SELECT id, item_id AS itemId, name, url, price, note FROM candidates WHERE item_id = ? ORDER BY created_at, id",
-      )
-      .bind(id),
+      db
+        .prepare(
+          "SELECT id, item_id AS itemId, name, url, price, note FROM candidates WHERE item_id = ? ORDER BY created_at, id",
+        )
+        .bind(id),
 
-    db
-      .prepare(
-        "SELECT id, item_id AS itemId, type, amount, paid_at AS paidAt, note, voided_at AS voidedAt FROM payments WHERE item_id = ? ORDER BY paid_at DESC, created_at DESC, id",
-      )
-      .bind(id),
-  ]);
+      db
+        .prepare(
+          "SELECT id, item_id AS itemId, type, amount, paid_at AS paidAt, note, voided_at AS voidedAt, invoice_name AS invoiceName, invoice_type AS invoiceType, invoice_size AS invoiceSize FROM payments WHERE item_id = ? ORDER BY paid_at DESC, created_at DESC, id",
+        )
+        .bind(id),
+    ],
+  );
 
   if (!items.results[0]) {
     throw missing();
@@ -117,7 +119,14 @@ export async function detail(db: D1Database, id: string) {
   return {
     ...itemView(items.results[0] as ItemRow),
     candidates: candidates.results,
-    payments: payments.results,
+    payments: payments.results.map(
+      ({ invoiceName, invoiceType, invoiceSize, ...payment }) => ({
+        ...payment,
+        invoice: invoiceName
+          ? { name: invoiceName, type: invoiceType, size: invoiceSize }
+          : null,
+      }),
+    ),
   };
 }
 

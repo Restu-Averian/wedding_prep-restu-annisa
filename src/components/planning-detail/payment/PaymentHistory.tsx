@@ -10,10 +10,12 @@ import {
 
 export default function PaymentHistory() {
   const { transactions } = usePlanningCtx();
+
   return (
     <>
       <div className="transactions-header">
         <h3 id="transactions-title">Riwayat Pembayaran</h3>
+
         <span className="badge counter-badge">{transactions.length}</span>
       </div>
 
@@ -49,10 +51,13 @@ export default function PaymentHistory() {
                         data-kind={kindKey}
                       >
                         {PAYMENT_LABELS[payment.type]}
+
                         {payment.voidedAt ? " · Dibatalkan" : ""}
                       </span>
+
                       <span className="transaction-date-quick">
                         <CalendarIcon size={13} />
+
                         <time dateTime={payment.paidAt}>{formattedDate}</time>
                       </span>
                     </div>
@@ -61,6 +66,7 @@ export default function PaymentHistory() {
                       <strong className="transaction-amount">
                         {formatRupiah(payment.amount)}
                       </strong>
+
                       <ChevronDownIcon
                         size={16}
                         className="chevron-indicator"
@@ -69,11 +75,28 @@ export default function PaymentHistory() {
                   </summary>
 
                   <div className="transaction-details">
+                    {payment.invoice && (
+                      <div className="detail-row">
+                        <span className="detail-label">
+                          <ReceiptIcon size={13} />
+                          Invoice
+                        </span>
+
+                        <a
+                          href={`/api/v1/items/${encodeURIComponent(payment.itemId)}/payments/${encodeURIComponent(payment.id)}/invoice`}
+                          download
+                        >
+                          Unduh invoice · {payment.invoice.name}
+                        </a>
+                      </div>
+                    )}
+
                     <div className="detail-row">
                       <span className="detail-label">
                         <CalendarIcon size={13} />
                         Tanggal Lengkap
                       </span>
+
                       <span className="detail-text">{fullDate}</span>
                     </div>
 
@@ -82,6 +105,7 @@ export default function PaymentHistory() {
                         <NoteIcon size={13} />
                         Catatan
                       </span>
+
                       <div className="detail-note">
                         {payment.note ? (
                           payment.note
@@ -101,7 +125,9 @@ export default function PaymentHistory() {
           <div className="empty-icon-wrap" aria-hidden="true">
             <ReceiptIcon size={28} />
           </div>
+
           <p className="empty-title">Belum ada riwayat pembayaran</p>
+
           <p className="empty-subtitle">
             Catatan pembayaran seperti DP atau cicilan akan muncul di sini
             secara rapi.

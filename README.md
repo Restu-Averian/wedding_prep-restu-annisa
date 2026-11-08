@@ -30,6 +30,7 @@ Versi Node yang didukung Vite/Wrangler terpasang diperlukan (gunakan Node 24 LTS
 
 - `migrations/0001_initial.sql`: tabel `categories`, `items`, `candidates`, `payments`, view `item_finances`, foreign keys, constraints, indexes dan trigger finansial.
 - `migrations/0002_categories.sql`: lima kategori tetap; insert aman terhadap slug duplikat.
+- `migrations/0003_payment_invoice.sql`: metadata invoice opsional per pembayaran; file disimpan di R2 privat.
 - Item/kandidat/transaksi menggunakan UUID. Kategori menggunakan ID slug tetap. Nilai uang integer rupiah, maksimum Rp1.000.000.000.000 per nilai; tidak ada float/ORM.
 - Kandidat terpilih harus milik item, dijaga composite foreign key. `agreed_amount` adalah snapshot; `estimated_amount` tetap tersimpan. Edit harga kandidat sebelum pembayaran tidak mengubah snapshot. Memilih ulang kandidat secara eksplisit melalui endpoint selection mengambil snapshot baru.
 - Effective amount = agreed ketika terpilih, selain itu estimasi. Dashboard `estimatedTotal` menjumlahkan effective amount. Paid hanya transaksi non-void; remaining = effective − paid; status `unpaid | partial | paid`.
@@ -55,11 +56,12 @@ Semua endpoint memakai prefix `/api/v1`. Sukses `{ "data": ... }`, list juga `{ 
 | DELETE | `/items/:id/candidates/:candidateId` | Hanya tanpa riwayat pembayaran |
 | PUT | `/items/:id/selection` | `{ "candidateId": "uuid" }` |
 | DELETE | `/items/:id/selection` | Hanya tanpa riwayat pembayaran |
-| POST | `/items/:id/payments` | `type`, `amount`, `paidAt` (`YYYY-MM-DD`), `note?` |
+| POST | `/items/:id/payments` | JSON lama atau multipart: `type`, `amount`, `paidAt` (`YYYY-MM-DD`), `note?`, `invoice?` (file, multipart saja) |
+| GET | `/items/:id/payments/:paymentId/invoice` | Unduh invoice melalui gate akses Worker; termasuk transaksi void |
 | PATCH | `/items/:id/payments/:paymentId` | Sebagian field POST |
 | DELETE | `/items/:id/payments/:paymentId` | Void; tidak menghapus riwayat |
 
-Payment type: `deposit`, `installment`, `settlement`. Nominal wajib integer positif dan tidak boleh melampaui outstanding. Tanggal harus tanggal kalender valid. URL selain HTTP/HTTPS ditolak; tidak ada scraping. Request JSON dibatasi 16 KiB. Error penting: `SELECTION_REQUIRED`, `OVERPAYMENT`, `FINANCIAL_HISTORY`, `INVALID_SELECTION`, `PAYMENT_VOIDED`, `VALIDATION_ERROR`, `NOT_FOUND`.
+Payment type: `deposit`, `installment`, `settlement`. Nominal wajib integer positif dan tidak boleh melampaui outstanding. Tanggal harus tanggal kalender valid. URL selain HTTP/HTTPS ditolak; tidak ada scraping. Request JSON dibatasi 16 KiB. POST pembayaran multipart dibatasi 5 MiB + 16 KiB overhead; invoice maksimal 5 MiB, satu file PDF/JPG/PNG. Worker memeriksa MIME dan signature awal file (bukan pemeriksaan antivirus/validitas seluruh dokumen). Error penting: `SELECTION_REQUIRED`, `OVERPAYMENT`, `FINANCIAL_HISTORY`, `INVALID_SELECTION`, `PAYMENT_VOIDED`, `VALIDATION_ERROR`, `NOT_FOUND`.
 
 ```sh
 curl http://127.0.0.1:8787/api/v1/categories
@@ -67,6 +69,14 @@ curl -X POST http://127.0.0.1:8787/api/v1/items \
   -H 'Content-Type: application/json' \
   -d '{"name":"Makeup","categoryId":"seserahan","estimatedAmount":500000}'
 ```
+
+## Invoice pembayaran
+
+`INVOICES` adalah binding R2 privat dengan nama bucket rencana `wedding-planner-invoices`. `wrangler dev` memakai R2 lokal secara default; jalankan migration lokal termasuk `0003` sebelum mencoba upload. Binding ini tidak membuat bucket remote. Untuk deployment nanti, siapkan bucket privat pada akun yang benar dan sesuaikan namanya; migration remote dan deploy memerlukan izin terpisah.
+
+Invoice opsional, satu file per pembayaran, belum mendukung ganti/hapus lampiran. Detail payment mengembalikan `invoice: { name, type, size } | null`, tanpa key storage. Link download melalui API, bukan URL bucket publik. Void mempertahankan invoice.
+
+File di-upload sebelum insert D1; insert yang ditolak memicu penghapusan file, kegagalan cleanup dicatat sebagai `INVOICE_CLEANUP_FAILED` dengan ID pembayaran saja. D1/R2 tidak memiliki transaksi bersama: penghentian runtime di antara operasi masih dapat menyisakan file yatim yang perlu rekonsiliasi. Jika insert sudah berhasil tetapi pembacaan detail gagal, API mengembalikan 201 dengan `{ data: null, meta: { paymentSaved: true } }`; UI mengunci submit dan meminta muat ulang riwayat. Request POST tidak diulang otomatis. Koneksi terputus setelah commit tetap dapat membuat status hasil tidak pasti; idempotency belum termasuk scope ini.
 
 ## Frontend dan file integrasi
 

@@ -565,6 +565,46 @@ export const DetailPage = styled(PlanningPage)`
     flex-shrink: 0;
   }
 
+  .reference-sections {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .reference-group {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .reference-group-label {
+    margin: 8px 0 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #795344;
+  }
+
+  .reference-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 16px 0 10px;
+    color: #8c7566;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+
+  .reference-divider::before,
+  .reference-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #ebdcd0;
+  }
+
   .reference-list {
     display: grid;
     gap: 14px;
@@ -1343,7 +1383,7 @@ export const ReferenceSheet = styled(PaymentSheet)`
   .image-preview-card {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
     padding: 12px 14px;
     border: 1px solid #ebdccf;
     border-radius: 14px;
@@ -1351,8 +1391,8 @@ export const ReferenceSheet = styled(PaymentSheet)`
     box-shadow: 0 1px 3px rgba(87, 67, 52, 0.04);
   }
   .preview-thumb {
-    width: 72px;
-    height: 72px;
+    width: 68px;
+    height: 68px;
     object-fit: cover;
     border-radius: 10px;
     border: 1px solid #ebdcd0;
@@ -1362,9 +1402,29 @@ export const ReferenceSheet = styled(PaymentSheet)`
   .preview-details {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     min-width: 0;
     flex: 1 1 0;
+  }
+  .preview-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    width: fit-content;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: #eaf3eb;
+    color: #276738;
+    border: 1px solid #c8e0cc;
+    font-size: 0.6875rem;
+    font-weight: 600;
+  }
+  .preview-subtext {
+    font-size: 0.75rem;
+    color: #8c7566;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .preview-label {
     font-size: 0.8125rem;
@@ -1380,23 +1440,41 @@ export const ReferenceSheet = styled(PaymentSheet)`
     gap: 8px;
     flex-wrap: wrap;
   }
+  .preview-actions button {
+    margin-top: 0;
+    width: auto;
+  }
   .preview-change-btn {
-    display: inline-flex !important;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    min-height: 34px !important;
-    padding: 6px 12px !important;
-    font-size: 0.75rem !important;
-    border-radius: 8px !important;
+    gap: 5px;
+    min-height: 32px;
+    padding: 5px 11px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: 1px solid #d9c8b5;
+    background: #ffffff;
+    color: #6a5344;
+    cursor: pointer;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease;
+  }
+  .preview-change-btn:hover:not(:disabled) {
+    background: #faf3ec;
+    border-color: #bfa893;
+    color: #493426;
   }
   .preview-remove-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    min-height: 34px;
-    padding: 6px 12px;
+    gap: 5px;
+    min-height: 32px;
+    padding: 5px 11px;
     border-radius: 8px;
     border: 1px solid #f2bdb5;
     background: #fff6f4;

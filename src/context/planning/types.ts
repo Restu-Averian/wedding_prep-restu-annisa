@@ -33,6 +33,7 @@ export interface Candidate {
   image?: string;
 }
 export interface Payment {
+  invoice: { name: string; type: string; size: number } | null;
   id: string;
   itemId: string;
   type: "deposit" | "installment" | "settlement";

@@ -13,8 +13,15 @@ export async function api<T>(
     method,
     signal,
     headers:
-      data === undefined ? undefined : { "Content-Type": "application/json" },
-    body: data === undefined ? undefined : JSON.stringify(data),
+      data === undefined || data instanceof FormData
+        ? undefined
+        : { "Content-Type": "application/json" },
+    body:
+      data === undefined
+        ? undefined
+        : data instanceof FormData
+          ? data
+          : JSON.stringify(data),
   });
 
   if (response.status === 204) {
@@ -31,6 +38,14 @@ export async function api<T>(
 
   if (!payload || !("data" in payload)) {
     throw new Error("Respons server tidak valid.");
+  }
+
+  if (payload.meta?.paymentSaved) {
+    const error = new Error(
+      "Pembayaran sudah tersimpan. Tutup form dan muat ulang halaman untuk melihat riwayat; jangan catat pembayaran yang sama lagi.",
+    );
+    error.name = "PaymentSavedError";
+    throw error;
   }
 
   return payload.data as T;

@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { z } from "zod";
+import { validateInvoice } from "./invoice";
 import {
   amount,
   ApiError,
@@ -52,6 +53,7 @@ app.patch("/items/:id", async (c) => {
       .partial()
       .refine((v) => Object.keys(v).length > 0, "Isi perubahan."),
   );
+
   const result = await c.env.DB.prepare(
     `UPDATE items SET name = COALESCE(?,name), category_id = COALESCE(?,category_id), estimated_amount = COALESCE(?,estimated_amount), updated_at = ${now} WHERE id = ?`,
   )
@@ -62,6 +64,7 @@ app.patch("/items/:id", async (c) => {
       c.req.param("id"),
     )
     .run();
+
   if (!result.meta.changes) {
     throw missing();
   }
@@ -199,30 +202,132 @@ app.delete("/items/:id/selection", async (c) => {
 });
 
 app.post("/items/:id/payments", async (c) => {
-  const value = await body(c.req.raw, paymentSchema);
-
+  let invoice: File | undefined;
+  let request = c.req.raw;
+  if (
+    c.req
+      .header("Content-Type")
+      ?.toLowerCase()
+      .startsWith("multipart/form-data;")
+  ) {
+    let form: FormData;
+    try {
+      form = await request.formData();
+    } catch {
+      throw new ApiError(
+        "VALIDATION_ERROR",
+        422,
+        "Form pembayaran tidak valid.",
+      );
+    }
+    const fields: Record<string, unknown> = Object.create(null);
+    for (const [key, entry] of form) {
+      if (form.getAll(key).length !== 1) {
+        throw new ApiError(
+          "VALIDATION_ERROR",
+          422,
+          "Setiap field hanya boleh diisi sekali, termasuk invoice.",
+        );
+      }
+      if (key === "invoice") {
+        if (!(entry instanceof File))
+          throw new ApiError(
+            "VALIDATION_ERROR",
+            422,
+            "Invoice harus berupa file.",
+          );
+        if (!entry.name && !entry.size) continue;
+        invoice = entry;
+        await validateInvoice(invoice);
+      } else {
+        if (typeof entry !== "string")
+          throw new ApiError(
+            "VALIDATION_ERROR",
+            422,
+            "Field pembayaran harus berupa teks.",
+          );
+        fields[key] = key === "amount" ? Number(entry) : entry;
+      }
+    }
+    request = new Request(request.url, {
+      method: "POST",
+      body: JSON.stringify(fields),
+    });
+  }
+  const value = await body(request, paymentSchema);
+  const itemId = c.req.param("id");
   if (
     !(await c.env.DB.prepare("SELECT id FROM items WHERE id = ?")
-      .bind(c.req.param("id"))
+      .bind(itemId)
       .first())
   ) {
     throw missing();
   }
-
-  await c.env.DB.prepare(
-    "INSERT INTO payments(id,item_id,type,amount,paid_at,note) VALUES(?,?,?,?,?,?)",
-  )
-    .bind(
-      crypto.randomUUID(),
-      c.req.param("id"),
-      value.type,
-      value.amount,
-      value.paidAt,
-      value.note ?? null,
+  const id = crypto.randomUUID();
+  const key = invoice ? `payments/${id}` : null;
+  if (invoice && key) {
+    await c.env.INVOICES.put(key, invoice.stream(), {
+      httpMetadata: { contentType: invoice.type },
+    });
+  }
+  try {
+    await c.env.DB.prepare(
+      "INSERT INTO payments(id,item_id,type,amount,paid_at,note,invoice_key,invoice_name,invoice_type,invoice_size) VALUES(?,?,?,?,?,?,?,?,?,?)",
     )
-    .run();
+      .bind(
+        id,
+        itemId,
+        value.type,
+        value.amount,
+        value.paidAt,
+        value.note ?? null,
+        key,
+        invoice?.name ?? null,
+        invoice?.type ?? null,
+        invoice?.size ?? null,
+      )
+      .run();
+  } catch (error) {
+    if (key) {
+      try {
+        await c.env.INVOICES.delete(key);
+      } catch {
+        console.error("INVOICE_CLEANUP_FAILED", { paymentId: id });
+      }
+    }
+    throw error;
+  }
+  // ponytail: D1 and R2 have no shared transaction; cleanup covers rejected inserts.
+  // A post-commit read failure must not invite a second payment submission.
+  try {
+    return c.json({ data: await detail(c.env.DB, itemId) }, 201);
+  } catch {
+    return c.json({ data: null, meta: { paymentSaved: true } }, 201);
+  }
+});
 
-  return c.json({ data: await detail(c.env.DB, c.req.param("id")) }, 201);
+app.get("/items/:id/payments/:paymentId/invoice", async (c) => {
+  const row = await c.env.DB.prepare(
+    "SELECT invoice_key AS key, invoice_name AS name, invoice_type AS type FROM payments WHERE id = ? AND item_id = ?",
+  )
+    .bind(c.req.param("paymentId"), c.req.param("id"))
+    .first<{ key: string | null; name: string; type: string }>();
+  if (!row?.key) throw missing();
+  const object = await c.env.INVOICES.get(row.key);
+  if (!object) throw missing();
+  const filename = encodeURIComponent(row.name).replace(
+    /['()*]/g,
+    (char) => `%${char.charCodeAt(0).toString(16)}`,
+  );
+  return new Response(object.body, {
+    headers: {
+      "Content-Type": row.type,
+      "Content-Disposition": `attachment; filename="invoice"; filename*=UTF-8''${filename}`,
+      "Content-Length": String(object.size),
+      "Cache-Control": "private, no-store",
+      "X-Content-Type-Options": "nosniff",
+    },
+  });
 });
 
 app.patch("/items/:id/payments/:paymentId", async (c) => {

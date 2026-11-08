@@ -602,4 +602,201 @@ export const PaymentSheet = styled.dialog`
     min-height: 46px;
     font-weight: 600;
   }
+
+  .image-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 22px 16px;
+    border-radius: 16px;
+    border: 1.5px dashed #d9c8b5;
+    background: #faf3ec;
+    cursor: pointer;
+    text-align: center;
+    box-sizing: border-box;
+    transition:
+      background 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .image-dropzone:hover {
+    background: #f5ebe0;
+    border-color: #9c7664;
+  }
+  .image-dropzone:focus-within {
+    border-color: #795344;
+    box-shadow: 0 0 0 3px rgba(121, 83, 68, 0.12);
+  }
+  .dropzone-icon-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #eee1d4;
+    color: #795344;
+    transition:
+      transform 0.2s ease,
+      background 0.2s ease;
+  }
+  .image-dropzone:hover .dropzone-icon-circle {
+    transform: scale(1.05);
+    background: #e8d7c7;
+  }
+  .dropzone-text-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .dropzone-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #574334;
+  }
+  .dropzone-subtitle {
+    font-size: 0.75rem;
+    color: #88656b;
+  }
+  .image-preview-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid #ebdccf;
+    border-radius: 14px;
+    background: #fffdfa;
+    box-shadow: 0 1px 3px rgba(87, 67, 52, 0.04);
+  }
+  .preview-thumb {
+    width: 68px;
+    height: 68px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid #ebdcd0;
+    flex-shrink: 0;
+    background: #f7eee8;
+  }
+  .preview-pdf-badge {
+    width: 68px;
+    height: 68px;
+    border-radius: 10px;
+    border: 1px solid #ebdcd0;
+    flex-shrink: 0;
+    background: #f4ece3;
+    color: #795344;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+  .pdf-tag {
+    font-size: 0.625rem;
+    font-weight: 700;
+    background: #795344;
+    color: #ffffff;
+    padding: 1px 5px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+  }
+  .preview-details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+    flex: 1 1 0;
+  }
+  .preview-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    width: fit-content;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: #eaf3eb;
+    color: #276738;
+    border: 1px solid #c8e0cc;
+    font-size: 0.6875rem;
+    font-weight: 600;
+  }
+  .preview-filename {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #493426;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .preview-filesize {
+    font-size: 0.75rem;
+    color: #8c7566;
+  }
+  .preview-subtext {
+    font-size: 0.75rem;
+    color: #8c7566;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .preview-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .preview-actions button {
+    margin-top: 0;
+    width: auto;
+  }
+  .preview-change-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 32px;
+    padding: 5px 11px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: 1px solid #d9c8b5;
+    background: #ffffff;
+    color: #6a5344;
+    cursor: pointer;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease;
+  }
+  .preview-change-btn:hover:not(:disabled) {
+    background: #faf3ec;
+    border-color: #bfa893;
+    color: #493426;
+  }
+  .preview-remove-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 32px;
+    padding: 5px 11px;
+    border-radius: 8px;
+    border: 1px solid #f2bdb5;
+    background: #fff6f4;
+    color: #b83321;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease;
+  }
+  .preview-remove-btn:hover:not(:disabled) {
+    background: #feece8;
+    border-color: #e09b90;
+  }
 `;

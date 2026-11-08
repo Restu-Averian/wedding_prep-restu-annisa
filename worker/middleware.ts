@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
+import { MAX_INVOICE_SIZE } from "./plan/invoice";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -44,10 +45,17 @@ app.use("*", async (c, next) => {
   await next();
 });
 
-app.use(
-  "/api/*",
+app.use("/api/*", (c, next) =>
   bodyLimit({
-    maxSize: 16 * 1024,
+    maxSize:
+      c.req.method === "POST" &&
+      /^\/api\/v1\/items\/[^/]+\/payments$/.test(c.req.path) &&
+      c.req
+        .header("Content-Type")
+        ?.toLowerCase()
+        .startsWith("multipart/form-data;")
+        ? MAX_INVOICE_SIZE + 16 * 1024
+        : 16 * 1024,
     onError: (c) =>
       c.json(
         {
@@ -55,7 +63,7 @@ app.use(
         },
         413,
       ),
-  }),
+  })(c, next),
 );
 
 export const fallbackRoutes = new Hono<{ Bindings: Env }>();

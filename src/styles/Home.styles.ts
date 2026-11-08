@@ -5,18 +5,67 @@ export const HomeDashboard = styled.div`
   gap: 24px;
 
   .hero {
-    padding: 0 0 16px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
+    padding: 26px 20px 22px;
+    border: 1px solid #ebdcd0;
+    border-radius: 24px;
+    background: radial-gradient(
+      120% 120% at 50% 0%,
+      #ffffff 0%,
+      #fffdfa 70%,
+      #fbf4ec 100%
+    );
+    box-shadow:
+      0 1px 3px rgba(87, 67, 52, 0.03),
+      0 10px 24px -10px rgba(87, 67, 52, 0.06);
+  }
+
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    border: 1px solid rgba(197, 168, 128, 0.28);
+    border-radius: 18px;
+    pointer-events: none;
+  }
+
+  .monogram {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 44px;
+    height: 44px;
+    margin-bottom: 12px;
+    border-radius: 50%;
+    border: 1px solid #e2d2c4;
+    background: #fffcf8;
+    color: #826451;
+    font-family: Georgia, serif;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 6px rgba(87, 67, 52, 0.04);
+  }
+
+  .monogram-divider {
+    font-size: 0.625rem;
+    color: #c5a880;
+    opacity: 0.75;
   }
 
   .hero h1 {
-    margin-bottom: 16px;
+    margin-bottom: 8px;
     font:
-      600 0.75rem/1.5 system-ui,
+      600 0.6875rem/1.4 system-ui,
       sans-serif;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: #826451;
+    color: #9c7b64;
   }
 
   .hero p {
@@ -25,15 +74,59 @@ export const HomeDashboard = styled.div`
 
   .couple {
     font:
-      400 clamp(2.3rem, 7vw, 3.75rem)/1.2 Georgia,
+      400 clamp(1.9rem, 6.2vw, 2.85rem)/1.2 Georgia,
       serif;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.025em;
+    color: #493426;
+  }
+
+  .amp {
+    font-family: Georgia, serif;
+    font-style: italic;
+    font-weight: 300;
+    color: #b8906f;
+    margin: 0 4px;
+  }
+
+  .ornament-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 170px;
+    margin: 12px 0 8px;
+    color: #c5a880;
+  }
+
+  .ornament-divider .line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(197, 168, 128, 0.45),
+      transparent
+    );
+  }
+
+  .ornament-divider .diamond {
+    flex-shrink: 0;
+    color: #b8906f;
+    opacity: 0.85;
   }
 
   .subtitle {
-    margin-top: 16px;
+    margin-top: 0;
     color: #88656b;
-    font-family: Georgia, serif;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 0.9375rem;
+    font-style: italic;
+    font-synthesis: style;
+    letter-spacing: 0.01em;
+  }
+
+  .subtitle em {
     font-style: italic;
   }
 
