@@ -368,6 +368,10 @@ export const PlanningPage = styled.div`
     background: #fffbfa;
     border-color: #dfcdbf;
   }
+  .item-card.item-skeleton-card {
+    cursor: default;
+    pointer-events: none;
+  }
   .item-card:hover {
     background: #fbf5ee;
     border-color: #c9ab9b;

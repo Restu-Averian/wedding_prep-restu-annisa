@@ -113,54 +113,49 @@ export function CategoryGridSkeleton() {
   );
 }
 
-const ItemListSkeletonContainer = styled.ul`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 14px;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  width: 100%;
-
-  .item-skeleton-card {
-    padding: 20px;
-    border: 1px solid #e7d9ca;
-    border-radius: 18px;
-    background: #fffdf9;
-    box-sizing: border-box;
-  }
-`;
-
 export function ItemListSkeleton({ count = 4 }: { count?: number }) {
   return (
-    <ItemListSkeletonContainer
+    <ul
+      className="item-grid"
       aria-busy="true"
       aria-label="Memuat daftar kebutuhan"
     >
       {Array.from({ length: count }).map((_, index) => (
-        <li key={index} className="item-skeleton-card">
+        <li key={index}>
           <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginBottom: "16px",
-            }}
+            className="panel item-card item-skeleton-card"
+            aria-hidden="true"
           >
-            <ShimmerBlock $width="34px" $height="34px" $radius="10px" />
+            <div className="card-top">
+              <div className="card-icon-wrapper" aria-hidden="true">
+                <ShimmerBlock $width="100%" $height="100%" $radius="inherit" />
+              </div>
 
-            <ShimmerBlock $width="90px" $height="24px" $radius="999px" />
+              <ShimmerBlock $width="78px" $height="20px" $radius="999px" />
+            </div>
+
+            <div className="card-body">
+              <ShimmerBlock
+                $width="52px"
+                $height="11px"
+                $radius="4px"
+                style={{ marginBottom: "6px" }}
+              />
+
+              <ShimmerBlock
+                $width="82%"
+                $height="16px"
+                $radius="4px"
+              />
+            </div>
+
+            <p className="price">
+              <ShimmerBlock $width="55%" $height="16px" $radius="4px" />
+            </p>
           </div>
-
-          <div style={{ display: "grid", gap: "6px", marginBottom: "14px" }}>
-            <ShimmerBlock $width="60px" $height="12px" />
-
-            <ShimmerBlock $width="80%" $height="18px" />
-          </div>
-
-          <ShimmerBlock $width="50%" $height="16px" />
         </li>
       ))}
-    </ItemListSkeletonContainer>
+    </ul>
   );
 }
 
