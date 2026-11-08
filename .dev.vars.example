@@ -1,0 +1,2 @@
+# Local Wrangler only. Never set this variable remotely.
+LOCAL_DEVELOPMENT=true

@@ -1,12 +1,15 @@
-import { usePlanningCtx } from '../../../context/planning/PlanningCtxProvider'
-import { formatRupiah } from '../../../utils/currency'
-import { CheckIcon, ClockIcon, WalletIcon } from '../../../asset'
+import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
+import { formatRupiah } from "../../../utils/currency";
+import { CheckIcon, ClockIcon, WalletIcon } from "../../../asset";
 
-export function PaymentSummaryCards() {
-  const { selected, total, paid, remaining, transactions } = usePlanningCtx()
-  const transactionCount = transactions.length
-  const paidPercent = total > 0 ? Math.min(100, Math.round((paid / total) * 100)) : 0
-  const isLunas = remaining === 0
+export default function PaymentSummaryCards() {
+  const { selected, total, paid, remaining, transactions } = usePlanningCtx();
+  const transactionCount = transactions.filter(
+    (payment) => !payment.voidedAt,
+  ).length;
+  const paidPercent =
+    total > 0 ? Math.min(100, Math.round((paid / total) * 100)) : 0;
+  const isLunas = remaining === 0;
 
   return (
     <div className="payment-summary-cards">
@@ -16,12 +19,12 @@ export function PaymentSummaryCards() {
             <WalletIcon size={15} />
           </div>
           <span className="summary-label">
-            {selected ? 'Harga Pilihan' : 'Estimasi Budget'}
+            {selected ? "Harga Pilihan" : "Estimasi Budget"}
           </span>
         </div>
         <strong className="summary-value">{formatRupiah(total)}</strong>
         <span className="summary-sub">
-          {selected ? selected.name : 'Estimasi awal'}
+          {selected ? selected.name : "Estimasi awal"}
         </span>
       </div>
 
@@ -38,10 +41,7 @@ export function PaymentSummaryCards() {
         </span>
       </div>
 
-      <div
-        className="summary-card card-remaining"
-        data-lunas={isLunas}
-      >
+      <div className="summary-card card-remaining" data-lunas={isLunas}>
         <div className="card-header">
           <div className="summary-icon-wrapper" aria-hidden="true">
             {isLunas ? <CheckIcon size={13} /> : <ClockIcon size={14} />}
@@ -50,11 +50,9 @@ export function PaymentSummaryCards() {
         </div>
         <strong className="summary-value">{formatRupiah(remaining)}</strong>
         <span className="summary-sub">
-          {isLunas ? '✓ Sudah Lunas' : 'Belum Lunas'}
+          {isLunas ? "✓ Sudah Lunas" : "Belum Lunas"}
         </span>
       </div>
     </div>
-  )
+  );
 }
-
-

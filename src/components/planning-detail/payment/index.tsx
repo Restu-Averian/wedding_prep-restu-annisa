@@ -1,17 +1,16 @@
 import { useState } from "react";
 import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
 import { CheckIcon, PlusIcon } from "../../../asset";
-import { PaymentDrawer } from "./PaymentDrawer";
-import { PaymentVendorNotSelected } from "./PaymentVendorNotSelected";
-import { PaymentSummaryCards } from "./PaymentSummaryCards";
-import { PaymentHistory } from "./PaymentHistory";
+import PaymentDrawer from "./PaymentDrawer";
+import PaymentVendorNotSelected from "./PaymentVendorNotSelected";
+import PaymentSummaryCards from "./PaymentSummaryCards";
+import PaymentHistory from "./PaymentHistory";
+export { default as PaymentVendorNotSelected } from "./PaymentVendorNotSelected";
+export { default as PaymentSummaryCards } from "./PaymentSummaryCards";
+export { default as PaymentHistory } from "./PaymentHistory";
+export { default as PaymentDrawer } from "./PaymentDrawer";
 
-export { PaymentVendorNotSelected } from "./PaymentVendorNotSelected";
-export { PaymentSummaryCards } from "./PaymentSummaryCards";
-export { PaymentHistory } from "./PaymentHistory";
-export { PaymentDrawer } from "./PaymentDrawer";
-
-export function PaymentSection() {
+export default function PaymentSection() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { selected, paid, remaining } = usePlanningCtx();
   const status = !selected
@@ -21,6 +20,8 @@ export function PaymentSection() {
       : paid > 0
         ? "Belum Lunas"
         : "Belum Bayar";
+
+  if (!selected) return null;
 
   return (
     <section
@@ -56,13 +57,7 @@ export function PaymentSection() {
         </button>
       )}
 
-      {drawerOpen && (
-        <PaymentDrawer
-          onClose={() => setDrawerOpen(false)}
-        />
-      )}
+      {drawerOpen && <PaymentDrawer onClose={() => setDrawerOpen(false)} />}
     </section>
   );
 }
-
-export default PaymentSection;
