@@ -82,10 +82,16 @@ export default function ReferenceDrawer({
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!item || busy || readingImage || submittedRef.current) return;
+    if (!item || busy || readingImage || submittedRef.current) {
+      return;
+    }
+
     const data = new FormData(event.currentTarget);
-    const name = String(data.get("name") ?? "").trim();
+
+    const name = String(data.get("name") ?? "").replace(/[\r\n]+/g, " ").trim();
+
     const price = Number(data.get("price"));
+
     const url = String(data.get("url") ?? "").trim();
     if (
       !name ||
@@ -131,14 +137,20 @@ export default function ReferenceDrawer({
   }
 
   async function deleteCandidate() {
-    if (!candidate || cannotDelete || readingImage || busy) return;
+    if (!candidate || cannotDelete || readingImage || busy) {
+      return;
+    }
+
     const confirmed = await confirm({
       title: "Hapus Referensi",
       message: `Hapus referensi "${candidate.name}"? Data yang dihapus tidak dapat dipulihkan.`,
       confirmText: "Hapus Referensi",
       tone: "danger",
     });
-    if (!confirmed) return;
+
+    if (!confirmed) {
+      return;
+    }
     try {
       await mutate(`/candidates/${candidate.id}`, "DELETE");
       onClose(true);
@@ -198,9 +210,10 @@ export default function ReferenceDrawer({
       >
         <label htmlFor="reference-name">Nama produk/vendor</label>
 
-        <input
+        <textarea
           id="reference-name"
           name="name"
+          rows={2}
           defaultValue={candidate?.name ?? ""}
           maxLength={120}
           required

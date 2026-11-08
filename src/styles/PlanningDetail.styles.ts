@@ -125,6 +125,7 @@ export const BackLink = styled(Link)`
 `;
 
 export const DetailPage = styled(PlanningPage)`
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
   width: 100%;
   max-width: 680px;
@@ -220,6 +221,10 @@ export const DetailPage = styled(PlanningPage)`
   }
 
   .detail-header-title-group h1 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
     margin: 0;
     font-family: Georgia, serif;
     font-weight: 400;
@@ -690,6 +695,10 @@ export const DetailPage = styled(PlanningPage)`
   }
 
   .reference-title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
     margin: 0 0 4px;
     font-size: 1rem;
     font-weight: 600;

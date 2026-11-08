@@ -128,10 +128,13 @@ export default function AmountInput({
       />
 
       <input
-        ref={hidden}
+        ref={(node) => {
+          hidden.current = node;
+          // ponytail: keep the hidden value outside React's defaultValue sync.
+          if (node) node.value = raw.current;
+        }}
         type="hidden"
         name={name}
-        defaultValue={initial}
         disabled={props.disabled}
       />
     </>

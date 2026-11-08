@@ -417,6 +417,10 @@ export const PlanningPage = styled.div`
     margin-bottom: 4px;
   }
   .item-card h2 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
     margin: 0;
     font-size: 0.975rem;
     line-height: 1.35;

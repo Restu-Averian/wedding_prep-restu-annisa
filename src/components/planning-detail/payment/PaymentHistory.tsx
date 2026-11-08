@@ -163,10 +163,12 @@ export default function PaymentHistory({
                             <span className="invoice-filename">
                               {payment.invoice.name}
                             </span>
+
                             <span className="invoice-meta">
                               {payment.invoice.size > 0
                                 ? formatFileSize(payment.invoice.size)
                                 : "Dokumen"}
+
                               {payment.invoice.type
                                 ? ` · ${payment.invoice.type.split("/")[1]?.toUpperCase() ?? "FILE"}`
                                 : ""}
@@ -175,6 +177,7 @@ export default function PaymentHistory({
 
                           <span className="invoice-action-badge">
                             <span>Unduh</span>
+
                             <ExternalLinkIcon size={13} />
                           </span>
                         </a>
