@@ -787,8 +787,7 @@ export const DetailPage = styled(PlanningPage)`
     color: #654333;
   }
 
-  .unselect-reference-btn,
-  .payment-history-actions button {
+  .unselect-reference-btn {
     min-height: 44px;
     padding: 8px 14px;
     background: transparent;
@@ -798,37 +797,20 @@ export const DetailPage = styled(PlanningPage)`
     font: inherit;
     font-size: 0.875rem;
     cursor: pointer;
-  }
-
-  .unselect-reference-btn {
     width: 100%;
     margin-top: 8px;
   }
 
-  .payment-history-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
-  }
-
-  .payment-history-actions .payment-delete-btn {
-    color: #a63c22;
-  }
-
-  .unselect-reference-btn:hover:not(:disabled),
-  .payment-history-actions button:hover:not(:disabled) {
+  .unselect-reference-btn:hover:not(:disabled) {
     background: #f3eae0;
   }
 
-  .unselect-reference-btn:focus-visible,
-  .payment-history-actions button:focus-visible {
+  .unselect-reference-btn:focus-visible {
     outline: 2px solid #795344;
     outline-offset: 2px;
   }
 
-  .unselect-reference-btn:disabled,
-  .payment-history-actions button:disabled {
+  .unselect-reference-btn:disabled {
     opacity: 0.55;
     cursor: not-allowed;
   }
@@ -1245,6 +1227,155 @@ export const DetailPage = styled(PlanningPage)`
     color: #a48c7c;
     font-style: italic;
     font-weight: 400;
+  }
+
+  .invoice-download-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: #fbf7f2;
+    border: 1px solid #ebdcd0;
+    border-radius: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 1px 3px rgba(85, 58, 42, 0.03);
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .invoice-download-card:hover {
+    background: #f6efe6;
+    border-color: #d6c1b0;
+    box-shadow: 0 2px 6px rgba(85, 58, 42, 0.06);
+    transform: translateY(-1px);
+  }
+
+  .invoice-download-card:focus-visible {
+    outline: 2px solid #795344;
+    outline-offset: 2px;
+  }
+
+  .invoice-card-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #f1e4d8;
+    border: 1px solid #e2d1c2;
+    color: #795344;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .invoice-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .invoice-filename {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #493426;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.3;
+  }
+
+  .invoice-meta {
+    font-size: 0.75rem;
+    color: #8d7668;
+    font-weight: 500;
+  }
+
+  .invoice-action-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #795344;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: #fffdfa;
+    border: 1px solid #ded0bf;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+  }
+
+  .invoice-download-card:hover .invoice-action-badge {
+    background: #795344;
+    color: #fffdfa;
+    border-color: #795344;
+  }
+
+  .payment-history-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 4px;
+    padding-top: 14px;
+    border-top: 1px solid #f2e7dc;
+  }
+
+  .payment-history-actions .payment-edit-btn,
+  .payment-history-actions .payment-delete-btn {
+    min-height: 38px;
+    padding: 6px 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-radius: 10px;
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+
+  .payment-history-actions .payment-edit-btn {
+    background: #f7eee8;
+    border: 1px solid #ded0bf;
+    color: #574334;
+  }
+
+  .payment-history-actions .payment-edit-btn:hover:not(:disabled) {
+    background: #eee1d8;
+    border-color: #cbb9a5;
+    color: #433125;
+  }
+
+  .payment-history-actions .payment-delete-btn {
+    background: #fff6f4;
+    border: 1px solid #f2bdb5;
+    color: #b83321;
+  }
+
+  .payment-history-actions .payment-delete-btn:hover:not(:disabled) {
+    background: #feece8;
+    border-color: #e09b90;
+    color: #962818;
+  }
+
+  .payment-history-actions button:focus-visible {
+    outline: 2px solid #795344;
+    outline-offset: 2px;
+  }
+
+  .payment-history-actions button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    background: #f9f5f1;
+    border-color: #ebdcd0;
+    color: #a89485;
   }
 
   .payment-empty-box {

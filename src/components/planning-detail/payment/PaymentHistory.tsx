@@ -5,10 +5,19 @@ import { formatRupiah } from "../../../utils/currency";
 import {
   CalendarIcon,
   ChevronDownIcon,
+  EditIcon,
+  ExternalLinkIcon,
   NoteIcon,
   ReceiptIcon,
+  TrashIcon,
 } from "../../../asset";
 import { useConfirm } from "../../../context/ConfirmContext";
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 export default function PaymentHistory({
   onEdit,
@@ -141,10 +150,33 @@ export default function PaymentHistory({
                         </span>
 
                         <a
+                          className="invoice-download-card"
                           href={`/api/v1/items/${encodeURIComponent(payment.itemId)}/payments/${encodeURIComponent(payment.id)}/invoice`}
                           download
+                          title={`Unduh ${payment.invoice.name}`}
                         >
-                          Unduh invoice · {payment.invoice.name}
+                          <div className="invoice-card-icon" aria-hidden="true">
+                            <ReceiptIcon size={18} />
+                          </div>
+
+                          <div className="invoice-card-info">
+                            <span className="invoice-filename">
+                              {payment.invoice.name}
+                            </span>
+                            <span className="invoice-meta">
+                              {payment.invoice.size > 0
+                                ? formatFileSize(payment.invoice.size)
+                                : "Dokumen"}
+                              {payment.invoice.type
+                                ? ` · ${payment.invoice.type.split("/")[1]?.toUpperCase() ?? "FILE"}`
+                                : ""}
+                            </span>
+                          </div>
+
+                          <span className="invoice-action-badge">
+                            <span>Unduh</span>
+                            <ExternalLinkIcon size={13} />
+                          </span>
                         </a>
                       </div>
                     )}
@@ -172,16 +204,19 @@ export default function PaymentHistory({
                         )}
                       </div>
                     </div>
+
                     {!payment.voidedAt && (
                       <div className="payment-history-actions">
                         {onEdit && (
                           <button
                             type="button"
+                            className="payment-edit-btn"
                             disabled={busy || !!deletingId || needsReload}
                             onClick={() => onEdit(payment)}
                             aria-label={`Edit pembayaran ${formatRupiah(payment.amount)}`}
                           >
-                            Edit
+                            <EditIcon size={14} />
+                            <span>Edit</span>
                           </button>
                         )}
                         <button
@@ -193,10 +228,14 @@ export default function PaymentHistory({
                           }}
                           aria-label={`Hapus pembayaran ${formatRupiah(payment.amount)}`}
                         >
-                          {deletingId === payment.id ? "Menghapus…" : "Hapus"}
+                          <TrashIcon size={14} />
+                          <span>
+                            {deletingId === payment.id ? "Menghapus…" : "Hapus"}
+                          </span>
                         </button>
                       </div>
                     )}
+
                     {feedback?.id === payment.id && (
                       <p role={feedback.error ? "alert" : "status"}>
                         {feedback.message}
