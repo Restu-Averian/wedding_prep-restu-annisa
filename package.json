@@ -16,6 +16,7 @@
     "test:api": "node scripts/check-api.mjs"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.107.1",
     "hono": "^4.13.17",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

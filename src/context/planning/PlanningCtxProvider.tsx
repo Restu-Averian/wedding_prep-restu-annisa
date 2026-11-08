@@ -6,7 +6,9 @@ import {
   useState,
 } from "react";
 import { useParams } from "react-router-dom";
-import { api, useApi } from "../../api/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { api, useApi, useItemMutation } from "../../api/client";
+import { queryKeys } from "../../api/query";
 import type {
   Candidate,
   DetailTabKey,
@@ -32,23 +34,22 @@ function PlanningStateProvider({
   children,
   itemId,
 }: PlanningCtxProviderProps & { itemId: string }) {
-  const resource = useApi<ItemDetail>(`/items/${encodeURIComponent(itemId)}`);
-
-  const [updated, setUpdated] = useState<ItemDetail>();
-
   const [images, setImages] = useState<Record<string, string | undefined>>({});
 
   const [activeTab, setActiveTab] = useState<DetailTabKey>("references");
 
   const [choosing, setChoosing] = useState(false);
 
-  const [busy, setBusy] = useState(false);
-
-  const [mutationError, setMutationError] = useState("");
-
   const submitting = useRef(false);
 
-  const item = updated ?? resource.data;
+  const resource = useApi<ItemDetail>(
+    `/items/${encodeURIComponent(itemId)}`,
+    queryKeys.detail(itemId),
+  );
+  const mutation = useItemMutation(itemId);
+  const client = useQueryClient();
+
+  const item = resource.data;
 
   const references = (item?.candidates ?? []).map((candidate) => ({
     ...candidate,
@@ -66,33 +67,28 @@ function PlanningStateProvider({
 
     submitting.current = true;
 
-    setBusy(true);
-
-    setMutationError("");
-
     try {
-      const result = await api<ItemDetail | undefined>(
-        `/items/${itemId}${path}`,
+      const result = await mutation.mutateAsync({
+        path: `/items/${encodeURIComponent(itemId)}${path}`,
         method,
         data,
+      });
+
+      return (
+        result ??
+        (await client.fetchQuery<ItemDetail>({
+          queryKey: queryKeys.detail(itemId),
+          queryFn: ({ signal }) =>
+            api<ItemDetail>(
+              `/items/${encodeURIComponent(itemId)}`,
+              "GET",
+              undefined,
+              signal,
+            ),
+        }))
       );
-
-      const fresh = result ?? (await api<ItemDetail>(`/items/${itemId}`));
-
-      setUpdated(fresh);
-
-      return fresh;
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Penyimpanan gagal.";
-
-      setMutationError(message);
-
-      throw error;
     } finally {
       submitting.current = false;
-
-      setBusy(false);
     }
   }
 
@@ -135,10 +131,7 @@ function PlanningStateProvider({
     item,
     loading: resource.loading && !item,
     error: item ? undefined : resource.error,
-    retry: () => {
-      setUpdated(undefined);
-      resource.retry();
-    },
+    retry: resource.retry,
     activeTab,
     setActiveTab,
     selectedId: item?.selectedCandidateId ?? undefined,
@@ -150,8 +143,8 @@ function PlanningStateProvider({
     paid: item?.financial.paidAmount ?? 0,
     total: item?.financial.effectiveAmount ?? 0,
     remaining: item?.financial.remainingAmount ?? 0,
-    busy,
-    mutationError,
+    busy: mutation.isPending,
+    mutationError: mutation.error?.message ?? "",
     mutate,
     saveReference,
   };

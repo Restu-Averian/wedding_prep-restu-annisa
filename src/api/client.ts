@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { QueryKey } from "@tanstack/react-query";
+import type { ItemDetail } from "../context/planning/types";
+import { updateItemCache } from "./query";
 
 export async function api<T>(
   path: string,
@@ -33,38 +36,47 @@ export async function api<T>(
   return payload.data as T;
 }
 
-export function useApi<T>(path: string) {
-  const [state, setState] = useState<{
-    path: string;
-    data?: T;
-    error?: string;
-  }>({ path });
-  const [revision, setRevision] = useState(0);
+export function useApi<T>(
+  path: string,
+  queryKey: QueryKey,
+  staleTime = 30_000,
+) {
+  const query = useQuery({
+    queryKey,
+    queryFn: ({ signal }) => api<T>(path, "GET", undefined, signal),
+    staleTime,
+  });
 
-  useEffect(() => {
-    const controller = new AbortController();
-
-    api<T>(path, "GET", undefined, controller.signal).then(
-      (data) => setState({ path, data }),
-      (error) => {
-        if (!controller.signal.aborted)
-          setState({
-            path,
-            error: error instanceof Error ? error.message : "Koneksi gagal.",
-          });
-      },
-    );
-
-    return () => controller.abort();
-  }, [path, revision]);
-  const current = state.path === path ? state : undefined;
   return {
-    data: current?.data,
-    error: current?.error,
-    loading: !current?.data && !current?.error,
+    data: query.data,
+    error: query.error?.message,
+    loading: query.isPending,
     retry: () => {
-      setState({ path });
-      setRevision((value) => value + 1);
+      void query.refetch();
     },
   };
+}
+
+export function useItemMutation(itemId?: string) {
+  const client = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      path,
+      method,
+      data,
+    }: {
+      path: string;
+      method: string;
+      data?: unknown;
+    }) => api<ItemDetail | undefined>(path, method, data),
+    onSuccess: (result, { path, method }) =>
+      updateItemCache(
+        client,
+        itemId ?? result?.id,
+        result,
+        method === "DELETE" &&
+          path === `/items/${encodeURIComponent(itemId ?? "")}`,
+      ),
+  });
 }

@@ -7,6 +7,7 @@ import ItemDrawer from "../../components/planning/ItemDrawer";
 import { StatusFeedback } from "../../components/common/StatusFeedback";
 import { ItemListSkeleton } from "../../components/common/Skeletons";
 import { useApi } from "../../api/client";
+import { queryKeys } from "../../api/query";
 import type { Category, WeddingItem } from "../../context/planning/types";
 import { PlanningPage } from "../../styles/Planning.styles";
 
@@ -15,7 +16,11 @@ export default function Planning() {
 
   const [adding, setAdding] = useState(false);
 
-  const categories = useApi<Category[]>("/categories");
+  const categories = useApi<Category[]>(
+    "/categories",
+    queryKeys.categories,
+    10 * 60_000,
+  );
 
   const category = categories.data?.find(
     (entry) => entry.slug === params.get("kategori"),
@@ -32,7 +37,14 @@ export default function Planning() {
     query.set("category", params.get("kategori")!);
   }
 
-  const items = useApi<WeddingItem[]>(`/items?${query}`);
+  const items = useApi<WeddingItem[]>(
+    `/items?${query}`,
+    queryKeys.list({
+      category: query.get("category") ?? "",
+      q: search,
+      selection: query.get("selection")!,
+    }),
+  );
 
   function updateFilter(key: string, value: string) {
     setParams(
@@ -48,10 +60,7 @@ export default function Planning() {
 
   return (
     <PlanningPage>
-      <Header
-        onAdd={() => setAdding(true)}
-        canAdd={Boolean(categories.data)}
-      />
+      <Header onAdd={() => setAdding(true)} canAdd={Boolean(categories.data)} />
       <Filter
         search={search}
         selection={params.get("selection") ?? "all"}
@@ -88,7 +97,6 @@ export default function Planning() {
           categories={categories.data}
           categoryId={category?.id}
           onClose={() => setAdding(false)}
-          onSaved={items.retry}
         />
       )}
     </PlanningPage>

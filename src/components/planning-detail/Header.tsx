@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { usePlanningCtx } from "../../context/planning/PlanningCtxProvider";
-import { useApi, api } from "../../api/client";
+import { useApi, useItemMutation } from "../../api/client";
+import { queryKeys } from "../../api/query";
 import type { Category } from "../../context/planning/types";
 import { CATEGORY_ICONS, CheckIcon, EditIcon, TrashIcon } from "../../asset";
 import { formatRupiah } from "../../utils/currency";
@@ -9,12 +10,20 @@ import ItemDrawer from "../planning/ItemDrawer";
 
 export default function Header() {
   const [editing, setEditing] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
+  const submitting = useRef(false);
 
-  const { item, retry, transactions, busy } = usePlanningCtx();
+  const { item, transactions, busy } = usePlanningCtx();
 
-  const categories = useApi<Category[]>("/categories");
+  const categories = useApi<Category[]>(
+    "/categories",
+    queryKeys.categories,
+    10 * 60_000,
+  );
+
+  const deletion = useItemMutation(item?.id);
+
+  const deleting = deletion.isPending;
 
   const navigate = useNavigate();
 
@@ -41,6 +50,7 @@ export default function Header() {
 
         <span className="status-badge" data-selected={isSelected}>
           {isSelected && <CheckIcon size={11} />}
+
           <span>{isSelected ? "Sudah Dipilih" : "Belum Dipilih"}</span>
         </span>
       </div>
@@ -79,7 +89,7 @@ export default function Header() {
           }
           onClick={async () => {
             if (
-              deleting ||
+              submitting.current ||
               !window.confirm(
                 `Hapus kebutuhan "${item.name}" beserta referensinya?`,
               )
@@ -87,19 +97,22 @@ export default function Header() {
               return;
             }
 
-            setDeleting(true);
+            submitting.current = true;
             setError("");
 
             try {
-              await api(`/items/${item.id}`, "DELETE");
+              await deletion.mutateAsync({
+                path: `/items/${encodeURIComponent(item.id)}`,
+                method: "DELETE",
+              });
 
               navigate("/rencana" + search);
             } catch (err) {
               setError(
                 err instanceof Error ? err.message : "Penghapusan gagal.",
               );
-
-              setDeleting(false);
+            } finally {
+              submitting.current = false;
             }
           }}
         >
@@ -125,7 +138,6 @@ export default function Header() {
           item={item}
           categories={categories.data}
           onClose={() => setEditing(false)}
-          onSaved={retry}
         />
       )}
     </header>

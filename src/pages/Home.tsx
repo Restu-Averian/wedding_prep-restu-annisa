@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useApi } from "../api/client";
+import { queryKeys } from "../api/query";
 import type { Dashboard } from "../context/planning/types";
 import CategoryGrid from "../components/home/CategoryGrid";
 import FinancialCard from "../components/home/FinancialCard";
@@ -12,7 +13,11 @@ import {
 import { HomeDashboard } from "../styles/Home.styles";
 
 export default function Home() {
-  const { data, loading, error, retry } = useApi<Dashboard>("/dashboard");
+  const { data, loading, error, retry } = useApi<Dashboard>(
+    "/dashboard",
+    queryKeys.dashboard,
+  );
+
   const isAccessError = error ? /akses|origin|forbidden/i.test(error) : false;
 
   return (

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Category, WeddingItem } from "../../context/planning/types";
-import { api } from "../../api/client";
+import { useItemMutation } from "../../api/client";
 import { PaymentSheet } from "../../styles/Planning.styles";
 
 export default function ItemDrawer({
@@ -14,20 +14,31 @@ export default function ItemDrawer({
   categories: Category[];
   categoryId?: string;
   onClose: () => void;
-  onSaved: () => void;
+  onSaved?: () => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const submitting = useRef(false);
-  const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+
+  const mutation = useItemMutation(item?.id);
+
+  const busy = mutation.isPending;
+
   useEffect(() => {
     const previous = document.activeElement;
+
     const overflow = document.body.style.overflow;
+
     dialog.current?.showModal();
+
     document.body.style.overflow = "hidden";
+
     return () => {
       document.body.style.overflow = overflow;
-      if (previous instanceof HTMLElement) previous.focus();
+
+      if (previous instanceof HTMLElement) {
+        previous.focus();
+      }
     };
   }, []);
   return (
@@ -43,6 +54,7 @@ export default function ItemDrawer({
         <h2 id="item-form-title">
           {item ? "Edit Kebutuhan" : "Tambah Kebutuhan"}
         </h2>
+
         <button
           type="button"
           aria-label="Tutup form"
@@ -52,25 +64,32 @@ export default function ItemDrawer({
           ×
         </button>
       </div>
+
       <form
         onSubmit={async (event) => {
           event.preventDefault();
-          if (submitting.current) return;
+          if (submitting.current) {
+            return;
+          }
+
           const data = new FormData(event.currentTarget);
+
           submitting.current = true;
-          setBusy(true);
           setError("");
+
           try {
-            await api(
-              item ? `/items/${item.id}` : "/items",
-              item ? "PATCH" : "POST",
-              {
+            await mutation.mutateAsync({
+              path: item ? `/items/${encodeURIComponent(item.id)}` : "/items",
+              method: item ? "PATCH" : "POST",
+              data: {
                 name: String(data.get("name")).trim(),
                 categoryId: String(data.get("categoryId")),
                 estimatedAmount: Number(data.get("estimatedAmount")),
               },
-            );
-            onSaved();
+            });
+
+            onSaved?.();
+
             onClose();
           } catch (error) {
             setError(
@@ -78,7 +97,6 @@ export default function ItemDrawer({
             );
           } finally {
             submitting.current = false;
-            setBusy(false);
           }
         }}
       >
@@ -90,6 +108,7 @@ export default function ItemDrawer({
           defaultValue={item?.name}
           required
         />
+
         <label htmlFor="item-category">Kategori</label>
         <select
           id="item-category"
@@ -103,6 +122,7 @@ export default function ItemDrawer({
             </option>
           ))}
         </select>
+
         <label htmlFor="item-estimate">Estimasi awal (Rp)</label>
         <input
           id="item-estimate"
@@ -114,7 +134,9 @@ export default function ItemDrawer({
           defaultValue={item?.estimatedAmount}
           required
         />
+
         {error && <p role="alert">{error}</p>}
+
         <button type="submit" className="primary" disabled={busy}>
           {busy ? "Menyimpan…" : "Simpan Kebutuhan"}
         </button>

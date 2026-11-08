@@ -42,13 +42,16 @@ export async function body<T>(
   schema: z.ZodType<T>,
 ): Promise<T> {
   let value: unknown;
+
   try {
     value = await request.json();
   } catch {
     throw new ApiError("INVALID_JSON", 400, "JSON tidak valid.");
   }
+
   const result = schema.safeParse(value);
-  if (!result.success)
+
+  if (!result.success) {
     throw new ApiError(
       "VALIDATION_ERROR",
       422,
@@ -56,6 +59,8 @@ export async function body<T>(
         .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
         .join("; "),
     );
+  }
+
   return result.data;
 }
 
@@ -89,7 +94,6 @@ export function itemView(row: ItemRow) {
 }
 
 export async function detail(db: D1Database, id: string) {
-  // A D1 batch reads item, candidates and history from one consistent transaction.
   const [items, candidates, payments] = await db.batch([
     db.prepare(`${itemQuery} WHERE id = ?`).bind(id),
 
@@ -106,7 +110,9 @@ export async function detail(db: D1Database, id: string) {
       .bind(id),
   ]);
 
-  if (!items.results[0]) throw missing();
+  if (!items.results[0]) {
+    throw missing();
+  }
 
   return {
     ...itemView(items.results[0] as ItemRow),
@@ -116,16 +122,20 @@ export async function detail(db: D1Database, id: string) {
 }
 
 export const handleApiError: ErrorHandler<{ Bindings: Env }> = (error, c) => {
-  if (error instanceof ApiError)
+  if (error instanceof ApiError) {
     return c.json(
       { error: { code: error.code, message: error.message } },
       error.status,
     );
-  for (const [code, message] of Object.entries(messages)) {
-    if (error.message.includes(code))
-      return c.json({ error: { code, message } }, 409);
   }
-  if (error.message.includes("FOREIGN KEY constraint"))
+
+  for (const [code, message] of Object.entries(messages)) {
+    if (error.message.includes(code)) {
+      return c.json({ error: { code, message } }, 409);
+    }
+  }
+
+  if (error.message.includes("FOREIGN KEY constraint")) {
     return c.json(
       {
         error: {
@@ -135,13 +145,17 @@ export const handleApiError: ErrorHandler<{ Bindings: Env }> = (error, c) => {
       },
       409,
     );
-  if (error.message.includes("CHECK constraint"))
+  }
+
+  if (error.message.includes("CHECK constraint")) {
     return c.json(
       {
         error: { code: "VALIDATION_ERROR", message: "Nilai data tidak valid." },
       },
       422,
     );
+  }
+
   return c.json(
     {
       error: {
