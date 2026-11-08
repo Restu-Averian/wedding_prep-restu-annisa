@@ -5,7 +5,10 @@ import { CategoryGrid } from "../components/home/CategoryGrid";
 import { FinancialCard } from "../components/home/FinancialCard";
 import { Header } from "../components/home/Header";
 import { StatusFeedback } from "../components/common/StatusFeedback";
-import { FinancialCardSkeleton, CategoryGridSkeleton } from "../components/common/Skeletons";
+import {
+  FinancialCardSkeleton,
+  CategoryGridSkeleton,
+} from "../components/common/Skeletons";
 import { HomeDashboard } from "../styles/Home.styles";
 
 export default function Home() {
@@ -26,7 +29,9 @@ export default function Home() {
       {error && (
         <StatusFeedback
           type={isAccessError ? "access" : "error"}
-          title={isAccessError ? "Akses Privat Dibatasi" : "Gagal Memuat Ringkasan"}
+          title={
+            isAccessError ? "Akses Privat Dibatasi" : "Gagal Memuat Ringkasan"
+          }
           message={error}
           onRetry={retry}
         />

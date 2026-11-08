@@ -37,7 +37,10 @@ export function missing() {
   return new ApiError("NOT_FOUND", 404, "Data tidak ditemukan.");
 }
 
-export async function body<T>(request: Request, schema: z.ZodType<T>): Promise<T> {
+export async function body<T>(
+  request: Request,
+  schema: z.ZodType<T>,
+): Promise<T> {
   let value: unknown;
   try {
     value = await request.json();
@@ -149,4 +152,3 @@ export const handleApiError: ErrorHandler<{ Bindings: Env }> = (error, c) => {
     500,
   );
 };
-

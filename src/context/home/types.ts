@@ -1,8 +1,8 @@
-import type { ComponentType } from 'react'
+import type { ComponentType } from "react";
 
 export interface Category {
-  id: string
-  name: string
-  estimate: string
-  icon: ComponentType<{ size?: number; className?: string }>
+  id: string;
+  name: string;
+  estimate: string;
+  icon: ComponentType<{ size?: number; className?: string }>;
 }

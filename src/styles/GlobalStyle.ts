@@ -1,4 +1,4 @@
-import { createGlobalStyle } from 'styled-components'
+import { createGlobalStyle } from "styled-components";
 
 export const GlobalStyle = createGlobalStyle`
   * { box-sizing: border-box; }
@@ -32,4 +32,4 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   .skip-link:focus { transform: translateY(0); }
-`
+`;

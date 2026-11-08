@@ -26,9 +26,7 @@ export function ReferenceSection() {
       <div className="section-heading">
         <div className="section-title-wrap">
           <h2 id="references-title">Referensi Produk / Vendor</h2>
-          <span className="reference-count-pill">
-            {references.length} Opsi
-          </span>
+          <span className="reference-count-pill">{references.length} Opsi</span>
         </div>
 
         {references.length > 0 && (
@@ -90,7 +88,8 @@ export function ReferenceSection() {
       )}
 
       <p className="hint session-hint">
-        Referensi tersimpan di database. Gambar hanya menjadi preview selama halaman detail ini terbuka.
+        Referensi tersimpan di database. Gambar hanya menjadi preview selama
+        halaman detail ini terbuka.
       </p>
 
       {referenceDraft !== undefined && (

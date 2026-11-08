@@ -1,7 +1,12 @@
 import { PAYMENT_LABELS } from "../../../context/planning/types";
-import { usePlanningCtx } from '../../../context/planning/PlanningCtxProvider'
+import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
 import { formatRupiah } from "../../../utils/currency";
-import { CalendarIcon, ChevronDownIcon, NoteIcon, ReceiptIcon } from "../../../asset";
+import {
+  CalendarIcon,
+  ChevronDownIcon,
+  NoteIcon,
+  ReceiptIcon,
+} from "../../../asset";
 
 export function PaymentHistory() {
   const { transactions } = usePlanningCtx();
@@ -43,7 +48,8 @@ export function PaymentHistory() {
                         className="transaction-kind-badge"
                         data-kind={kindKey}
                       >
-                        {PAYMENT_LABELS[payment.type]}{payment.voidedAt ? " · Dibatalkan" : ""}
+                        {PAYMENT_LABELS[payment.type]}
+                        {payment.voidedAt ? " · Dibatalkan" : ""}
                       </span>
                       <span className="transaction-date-quick">
                         <CalendarIcon size={13} />

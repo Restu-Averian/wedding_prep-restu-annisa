@@ -1,4 +1,4 @@
-import { styled, keyframes } from 'styled-components'
+import { styled, keyframes } from "styled-components";
 
 const shimmer = keyframes`
   0% {
@@ -7,18 +7,22 @@ const shimmer = keyframes`
   100% {
     background-position: 200% 0;
   }
-`
+`;
 
-export const ShimmerBlock = styled.div<{ $width?: string; $height?: string; $radius?: string }>`
-  width: ${({ $width }) => $width ?? '100%'};
-  height: ${({ $height }) => $height ?? '20px'};
-  border-radius: ${({ $radius }) => $radius ?? '8px'};
+export const ShimmerBlock = styled.div<{
+  $width?: string;
+  $height?: string;
+  $radius?: string;
+}>`
+  width: ${({ $width }) => $width ?? "100%"};
+  height: ${({ $height }) => $height ?? "20px"};
+  border-radius: ${({ $radius }) => $radius ?? "8px"};
   background: linear-gradient(90deg, #f3eae0 25%, #faf4ee 50%, #f3eae0 75%);
   background-size: 200% 100%;
   animation: ${shimmer} 1.8s ease-in-out infinite;
-`
+`;
 
-export const FeedbackCard = styled.div<{ $tone?: 'neutral' | 'alert' }>`
+export const FeedbackCard = styled.div<{ $tone?: "neutral" | "alert" }>`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -31,7 +35,7 @@ export const FeedbackCard = styled.div<{ $tone?: 'neutral' | 'alert' }>`
   width: 100%;
 
   ${({ $tone }) =>
-    $tone === 'alert'
+    $tone === "alert"
       ? `
     background: #fdf6f3;
     border: 1px solid #ebd3c8;
@@ -50,23 +54,24 @@ export const FeedbackCard = styled.div<{ $tone?: 'neutral' | 'alert' }>`
     width: 48px;
     height: 48px;
     border-radius: 14px;
-    background: ${({ $tone }) => ($tone === 'alert' ? '#f5e4dc' : '#f4eae0')};
-    color: ${({ $tone }) => ($tone === 'alert' ? '#8a4b40' : '#826451')};
+    background: ${({ $tone }) => ($tone === "alert" ? "#f5e4dc" : "#f4eae0")};
+    color: ${({ $tone }) => ($tone === "alert" ? "#8a4b40" : "#826451")};
     margin-bottom: 4px;
   }
 
-  h2, h3 {
+  h2,
+  h3 {
     font-family: Georgia, serif;
     font-weight: 400;
     margin: 0;
-    color: ${({ $tone }) => ($tone === 'alert' ? '#5a2d25' : '#493426')};
+    color: ${({ $tone }) => ($tone === "alert" ? "#5a2d25" : "#493426")};
     font-size: clamp(1.2rem, 3.5vw, 1.45rem);
   }
 
   p {
     font-size: 0.9375rem;
     line-height: 1.5;
-    color: ${({ $tone }) => ($tone === 'alert' ? '#784d44' : '#796455')};
+    color: ${({ $tone }) => ($tone === "alert" ? "#784d44" : "#796455")};
     max-width: 44ch;
     margin: 0;
   }
@@ -92,7 +97,9 @@ export const FeedbackCard = styled.div<{ $tone?: 'neutral' | 'alert' }>`
     font-size: 0.875rem;
     text-decoration: none;
     cursor: pointer;
-    transition: background 0.18s ease, transform 0.15s ease;
+    transition:
+      background 0.18s ease,
+      transform 0.15s ease;
   }
 
   .actions .primary-btn {
@@ -114,7 +121,7 @@ export const FeedbackCard = styled.div<{ $tone?: 'neutral' | 'alert' }>`
   .actions .secondary-btn:hover {
     background: #ebd8c8;
   }
-`
+`;
 
 export const InlineAlertBanner = styled.div`
   display: flex;
@@ -162,4 +169,4 @@ export const InlineAlertBanner = styled.div`
   .retry-btn:hover {
     background: #f5e4db;
   }
-`
+`;

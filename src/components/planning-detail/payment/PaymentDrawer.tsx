@@ -111,15 +111,25 @@ export function PaymentDrawer({ onClose }: PaymentDrawerProps) {
           }
           submittingRef.current = true;
           try {
-            const types = { DP: "deposit", Cicilan: "installment", Pelunasan: "settlement" };
+            const types = {
+              DP: "deposit",
+              Cicilan: "installment",
+              Pelunasan: "settlement",
+            };
             await mutate("/payments", "POST", {
-              type: types[kind as keyof typeof types], amount, paidAt: date,
+              type: types[kind as keyof typeof types],
+              amount,
+              paidAt: date,
               note: String(data.get("note") ?? "").trim(),
             });
             submittingRef.current = false;
             handleClose();
           } catch (error) {
-            setError(error instanceof Error ? error.message : "Pembayaran gagal disimpan.");
+            setError(
+              error instanceof Error
+                ? error.message
+                : "Pembayaran gagal disimpan.",
+            );
           } finally {
             submittingRef.current = false;
           }

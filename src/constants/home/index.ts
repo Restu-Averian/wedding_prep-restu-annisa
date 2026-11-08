@@ -1,1 +1,1 @@
-export { CATEGORIES } from '../planning'
+export { CATEGORIES } from "../planning";

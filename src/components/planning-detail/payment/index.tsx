@@ -58,11 +58,7 @@ export function PaymentSection() {
         </button>
       )}
 
-      {drawerOpen && (
-        <PaymentDrawer
-          onClose={() => setDrawerOpen(false)}
-        />
-      )}
+      {drawerOpen && <PaymentDrawer onClose={() => setDrawerOpen(false)} />}
     </section>
   );
 }

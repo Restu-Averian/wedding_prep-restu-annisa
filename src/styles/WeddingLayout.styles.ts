@@ -1,4 +1,4 @@
-import { styled } from 'styled-components'
+import { styled } from "styled-components";
 
 export const Nav = styled.nav`
   position: fixed;
@@ -25,8 +25,13 @@ export const Nav = styled.nav`
     text-decoration: none;
   }
 
-  a:hover { background: #ede2d3; }
-  a[aria-current='page'] { background: #e7d8c5; color: #493426; }
+  a:hover {
+    background: #ede2d3;
+  }
+  a[aria-current="page"] {
+    background: #e7d8c5;
+    color: #493426;
+  }
 
   @media (min-width: 768px) {
     position: static;
@@ -35,9 +40,12 @@ export const Nav = styled.nav`
     border-top: 0;
     border-bottom: 1px solid #ded0bf;
 
-    a { flex: initial; padding-inline: 24px; }
+    a {
+      flex: initial;
+      padding-inline: 24px;
+    }
   }
-`
+`;
 
 export const Main = styled.main`
   width: min(100%, 960px);
@@ -52,12 +60,13 @@ export const Main = styled.main`
   @media (min-width: 768px) {
     padding: 72px 24px;
   }
-`
+`;
 
 export const Footer = styled.footer`
   padding-top: 32px;
   text-align: center;
   color: #88656b;
-  font: italic 0.875rem/1.8 Georgia, serif;
-`
-
+  font:
+    italic 0.875rem/1.8 Georgia,
+    serif;
+`;

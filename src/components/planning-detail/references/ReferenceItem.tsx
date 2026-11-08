@@ -1,17 +1,19 @@
 import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
 import type { Candidate } from "../../../context/planning/types";
 import { formatRupiah } from "../../../utils/currency";
-import { CheckIcon, EditIcon, ExternalLinkIcon, StoreIcon } from "../../../asset";
+import {
+  CheckIcon,
+  EditIcon,
+  ExternalLinkIcon,
+  StoreIcon,
+} from "../../../asset";
 
 export interface ReferenceItemProps {
   candidate: Candidate;
   onEdit: (candidate: Candidate) => void;
 }
 
-export function ReferenceItem({
-  candidate,
-  onEdit,
-}: ReferenceItemProps) {
+export function ReferenceItem({ candidate, onEdit }: ReferenceItemProps) {
   const { item, selectedId, transactions, busy, mutate } = usePlanningCtx();
   const isSelected = candidate.id === selectedId;
   const cannotSelect = busy || transactions.length > 0;
@@ -27,7 +29,10 @@ export function ReferenceItem({
               alt={`Foto ${candidate.name}`}
             />
           ) : (
-            <div className="reference-image-placeholder" aria-label="Foto produk">
+            <div
+              className="reference-image-placeholder"
+              aria-label="Foto produk"
+            >
               <StoreIcon size={24} />
             </div>
           )}
@@ -36,7 +41,11 @@ export function ReferenceItem({
             <h3 className="reference-title">{candidate.name}</h3>
 
             <p className="reference-price">{formatRupiah(candidate.price)}</p>
-            {isSelected && item?.agreedAmount !== candidate.price && <p className="hint">Harga kesepakatan: {formatRupiah(item?.agreedAmount ?? 0)}</p>}
+            {isSelected && item?.agreedAmount !== candidate.price && (
+              <p className="hint">
+                Harga kesepakatan: {formatRupiah(item?.agreedAmount ?? 0)}
+              </p>
+            )}
 
             {candidate.url ? (
               <a
@@ -78,7 +87,9 @@ export function ReferenceItem({
               type="button"
               disabled={cannotSelect}
               onClick={() => {
-                void mutate("/selection", "PUT", { candidateId: candidate.id }).catch(() => {});
+                void mutate("/selection", "PUT", {
+                  candidateId: candidate.id,
+                }).catch(() => {});
               }}
             >
               Pilih Opsi Ini
@@ -86,7 +97,9 @@ export function ReferenceItem({
 
             {cannotSelect && (
               <p className="cannot-select-hint">
-                {busy ? "Menyimpan…" : "Pilihan terkunci karena memiliki riwayat pembayaran."}
+                {busy
+                  ? "Menyimpan…"
+                  : "Pilihan terkunci karena memiliki riwayat pembayaran."}
               </p>
             )}
           </div>

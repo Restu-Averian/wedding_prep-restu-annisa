@@ -1,1 +1,2 @@
-export const formatRupiah = (amount: number) => `Rp${amount.toLocaleString('id-ID')}`
+export const formatRupiah = (amount: number) =>
+  `Rp${amount.toLocaleString("id-ID")}`;

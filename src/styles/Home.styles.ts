@@ -1,4 +1,4 @@
-import { styled } from 'styled-components'
+import { styled } from "styled-components";
 
 export const HomeDashboard = styled.div`
   display: grid;
@@ -11,7 +11,9 @@ export const HomeDashboard = styled.div`
 
   .hero h1 {
     margin-bottom: 16px;
-    font: 600 0.75rem/1.5 system-ui, sans-serif;
+    font:
+      600 0.75rem/1.5 system-ui,
+      sans-serif;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: #826451;
@@ -22,7 +24,9 @@ export const HomeDashboard = styled.div`
   }
 
   .couple {
-    font: 400 clamp(2.3rem, 7vw, 3.75rem)/1.2 Georgia, serif;
+    font:
+      400 clamp(2.3rem, 7vw, 3.75rem)/1.2 Georgia,
+      serif;
     letter-spacing: -0.04em;
   }
 
@@ -134,7 +138,11 @@ export const HomeDashboard = styled.div`
     color: inherit;
     text-decoration: none;
     box-shadow: 0 2px 8px rgb(87 67 52 / 2%);
-    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    transition:
+      transform 0.18s ease,
+      border-color 0.18s ease,
+      box-shadow 0.18s ease,
+      background 0.18s ease;
   }
 
   .category-card:hover {
@@ -154,7 +162,9 @@ export const HomeDashboard = styled.div`
     border-radius: 12px;
     background: #f4eae0;
     color: #826451;
-    transition: background 0.18s ease, color 0.18s ease;
+    transition:
+      background 0.18s ease,
+      color 0.18s ease;
   }
 
   .category-card:hover .icon-wrapper {
@@ -253,4 +263,4 @@ export const HomeDashboard = styled.div`
       gap: 16px;
     }
   }
-`
+`;

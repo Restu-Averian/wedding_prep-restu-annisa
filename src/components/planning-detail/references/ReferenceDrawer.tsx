@@ -147,7 +147,9 @@ export function ReferenceDrawer({ candidate, onClose }: ReferenceDrawerProps) {
       ref={dialogRef}
       aria-labelledby="reference-title"
       aria-describedby="reference-description"
-      onCancel={(event) => { if (busy) event.preventDefault(); }}
+      onCancel={(event) => {
+        if (busy) event.preventDefault();
+      }}
       onClose={() => onClose()}
     >
       <div className="sheet-heading">
@@ -166,7 +168,8 @@ export function ReferenceDrawer({ candidate, onClose }: ReferenceDrawerProps) {
       </div>
 
       <p id="reference-description">
-        Simpan produk atau vendor untuk dibandingkan. Gambar hanya menjadi preview lokal.
+        Simpan produk atau vendor untuk dibandingkan. Gambar hanya menjadi
+        preview lokal.
       </p>
 
       <form
@@ -210,9 +213,19 @@ export function ReferenceDrawer({ candidate, onClose }: ReferenceDrawerProps) {
           defaultValue={candidate?.url ?? ""}
           placeholder="https://…"
         />
-        {priceLocked && <p className="field-hint">Harga terkunci karena sudah memiliki riwayat pembayaran.</p>}
+        {priceLocked && (
+          <p className="field-hint">
+            Harga terkunci karena sudah memiliki riwayat pembayaran.
+          </p>
+        )}
         <label htmlFor="reference-note">Catatan (opsional)</label>
-        <textarea id="reference-note" name="note" rows={3} maxLength={500} defaultValue={candidate?.note ?? ""} />
+        <textarea
+          id="reference-note"
+          name="note"
+          rows={3}
+          maxLength={500}
+          defaultValue={candidate?.note ?? ""}
+        />
         <label htmlFor="reference-image">Gambar (opsional)</label>
         <input
           id="reference-image"
@@ -289,11 +302,7 @@ export function ReferenceDrawer({ candidate, onClose }: ReferenceDrawerProps) {
             type="submit"
             disabled={readingImage || busy}
           >
-            {busy
-              ? "Menyimpan…"
-              : candidate
-                ? "Simpan"
-                : "Tambah Referensi"}
+            {busy ? "Menyimpan…" : candidate ? "Simpan" : "Tambah Referensi"}
           </button>
         </div>
       </form>
