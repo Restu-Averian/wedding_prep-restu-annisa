@@ -1,3 +1,4 @@
+import AmountInput from "../../AmountInput";
 import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
 import {
   useState,
@@ -26,8 +27,10 @@ export default function ReferenceDrawer({
   const priceLocked = candidate?.id === selectedId && transactions.length > 0;
   const cannotDelete = transactions.length > 0;
   const [image, setImage] = useState(candidate?.image);
+  const [imageFile, setImageFile] = useState<File>();
   const [readingImage, setReadingImage] = useState(false);
   const [error, setError] = useState("");
+  const [referenceSaved, setReferenceSaved] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const readerRef = useRef<FileReader | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -67,6 +70,7 @@ export default function ReferenceDrawer({
       preview.onload = () => {
         if (readerRef.current !== reader) return;
         setImage(source);
+        setImageFile(file);
         setReadingImage(false);
       };
       preview.src = source;
@@ -112,11 +116,15 @@ export default function ReferenceDrawer({
       note: String(data.get("note") ?? "").trim(),
     };
     try {
-      await saveReference(reference);
+      await saveReference(reference, imageFile);
       onClose(true);
     } catch (error) {
       setError(error instanceof Error ? error.message : "Penyimpanan gagal.");
-      submittedRef.current = false;
+      if (error instanceof Error && error.name === "ReferenceSavedError") {
+        setReferenceSaved(true);
+      } else {
+        submittedRef.current = false;
+      }
     }
   }
 
@@ -171,8 +179,7 @@ export default function ReferenceDrawer({
       </div>
 
       <p id="reference-description">
-        Simpan produk atau vendor untuk dibandingkan. Gambar hanya menjadi
-        preview lokal.
+        Simpan produk atau vendor beserta gambar untuk dibandingkan.
       </p>
 
       <form
@@ -193,16 +200,14 @@ export default function ReferenceDrawer({
 
         <label htmlFor="reference-price">Harga (Rp)</label>
 
-        <input
+        <AmountInput
           id="reference-price"
           readOnly={priceLocked}
           name="price"
-          type="number"
           min={minimumPrice}
-          max={Number.MAX_SAFE_INTEGER}
-          step="1"
+          max={1_000_000_000_000}
           inputMode="numeric"
-          defaultValue={candidate?.price ?? ""}
+          defaultValue={candidate?.price}
           required
         />
 
@@ -237,7 +242,7 @@ export default function ReferenceDrawer({
           type="file"
           className="sr-only"
           accept="image/jpeg,image/png,image/webp"
-          disabled={readingImage || busy}
+          disabled={readingImage || busy || referenceSaved}
           onChange={chooseImage}
           aria-describedby="reference-image-hint"
         />
@@ -280,19 +285,21 @@ export default function ReferenceDrawer({
                 <button
                   type="button"
                   className="preview-change-btn"
-                  disabled={readingImage || busy}
+                  disabled={readingImage || busy || referenceSaved}
                   onClick={() => fileRef.current?.click()}
                 >
                   <EditIcon size={14} />
+
                   <span>Ganti</span>
                 </button>
 
                 <button
                   type="button"
                   className="preview-remove-btn"
-                  disabled={readingImage || busy}
+                  disabled={readingImage || busy || referenceSaved}
                   onClick={() => {
                     setImage(undefined);
+                    setImageFile(undefined);
                     setError("");
                     if (fileRef.current) fileRef.current.value = "";
                   }}
@@ -343,7 +350,7 @@ export default function ReferenceDrawer({
           <button
             className="primary drawer-submit-btn"
             type="submit"
-            disabled={readingImage || busy}
+            disabled={readingImage || busy || referenceSaved}
           >
             {busy ? "Menyimpan…" : candidate ? "Simpan" : "Tambah Referensi"}
           </button>

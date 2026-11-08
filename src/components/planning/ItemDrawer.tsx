@@ -1,3 +1,4 @@
+import AmountInput from "../AmountInput";
 import { useEffect, useRef, useState } from "react";
 import type { Category, WeddingItem } from "../../context/planning/types";
 import { useItemMutation } from "../../api/client";
@@ -124,13 +125,11 @@ export default function ItemDrawer({
         </select>
 
         <label htmlFor="item-estimate">Estimasi awal (Rp)</label>
-        <input
+        <AmountInput
           id="item-estimate"
           name="estimatedAmount"
-          type="number"
           min={0}
           max={1_000_000_000_000}
-          step={1}
           defaultValue={item?.estimatedAmount}
           required
         />

@@ -1,3 +1,4 @@
+import AmountInput from "../../AmountInput";
 import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
 import {
   useState,
@@ -253,16 +254,14 @@ export default function PaymentDrawer({ onClose }: PaymentDrawerProps) {
         </select>
 
         <label htmlFor="payment-amount">Nominal (Rp)</label>
-        <input
+        <AmountInput
           id="payment-amount"
           name="amount"
-          type="number"
-          min="1"
+          min={1}
           max={remaining}
-          step="1"
           inputMode="numeric"
           required
-          placeholder="Contoh: 100000"
+          placeholder="Contoh: 100,000"
         />
 
         <label htmlFor="payment-date">Tanggal</label>
@@ -291,10 +290,7 @@ export default function PaymentDrawer({ onClose }: PaymentDrawerProps) {
         />
 
         {!invoiceFile ? (
-          <label
-            htmlFor="payment-invoice"
-            className="image-dropzone"
-          >
+          <label htmlFor="payment-invoice" className="image-dropzone">
             <div className="dropzone-icon-circle" aria-hidden="true">
               <ReceiptIcon size={22} />
             </div>

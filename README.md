@@ -31,6 +31,7 @@ Versi Node yang didukung Vite/Wrangler terpasang diperlukan (gunakan Node 24 LTS
 - `migrations/0001_initial.sql`: tabel `categories`, `items`, `candidates`, `payments`, view `item_finances`, foreign keys, constraints, indexes dan trigger finansial.
 - `migrations/0002_categories.sql`: lima kategori tetap; insert aman terhadap slug duplikat.
 - `migrations/0003_payment_invoice.sql`: metadata invoice opsional per pembayaran; file disimpan di R2 privat.
+- `migrations/0004_reference_image.sql`: metadata gambar referensi persisten di R2 privat.
 - Item/kandidat/transaksi menggunakan UUID. Kategori menggunakan ID slug tetap. Nilai uang integer rupiah, maksimum Rp1.000.000.000.000 per nilai; tidak ada float/ORM.
 - Kandidat terpilih harus milik item, dijaga composite foreign key. `agreed_amount` adalah snapshot; `estimated_amount` tetap tersimpan. Edit harga kandidat sebelum pembayaran tidak mengubah snapshot. Memilih ulang kandidat secara eksplisit melalui endpoint selection mengambil snapshot baru.
 - Effective amount = agreed ketika terpilih, selain itu estimasi. Dashboard `estimatedTotal` menjumlahkan effective amount. Paid hanya transaksi non-void; remaining = effective − paid; status `unpaid | partial | paid`.
@@ -51,8 +52,8 @@ Semua endpoint memakai prefix `/api/v1`. Sukses `{ "data": ... }`, list juga `{ 
 | POST | `/items` | `name`, `categoryId`, `estimatedAmount` |
 | PATCH | `/items/:id` | Sebagian field POST |
 | DELETE | `/items/:id` | Hanya tanpa riwayat pembayaran |
-| POST | `/items/:id/candidates` | `name`, `url` HTTP/HTTPS, `price`, `note?` |
-| PATCH | `/items/:id/candidates/:candidateId` | Sebagian field POST |
+| POST | `/items/:id/candidates` | `name`, `url` HTTP/HTTPS, `price`, `note?`; JSON atau multipart dengan `image?` |
+| PATCH | `/items/:id/candidates/:candidateId` | Sebagian field POST; multipart untuk ganti gambar, `removeImage: true` untuk hapus |
 | DELETE | `/items/:id/candidates/:candidateId` | Hanya tanpa riwayat pembayaran |
 | PUT | `/items/:id/selection` | `{ "candidateId": "uuid" }` |
 | DELETE | `/items/:id/selection` | Hanya tanpa riwayat pembayaran |
@@ -113,3 +114,7 @@ Sebelum data nyata dapat digunakan secara remote:
 5. Jalankan build, dry-run dan verifikasi keamanan. Deploy hanya setelah izin terpisah. Tidak ada script deploy otomatis atau push commit.
 
 Referensi platform: [D1 SQL](https://developers.cloudflare.com/d1/sql-api/sql-statements/), [D1 Wrangler/migrations](https://developers.cloudflare.com/d1/wrangler-commands/), [Workers static assets](https://developers.cloudflare.com/workers/static-assets/routing/advanced/html-handling/).
+
+Gambar referensi JPEG/PNG/WebP maksimal 5 MiB disimpan pada binding R2 privat `INVOICES` dengan prefix `references/`. Terapkan migration `0004` sebelum menggunakan fitur ini. Detail kandidat mengembalikan `image` berupa URL API melalui gate akses Worker: `GET /api/v1/items/:id/candidates/:candidateId/image`. Ganti/hapus gambar membersihkan objek lama setelah perubahan database berhasil; file lama tetap dipertahankan bila perubahan ditolak. Runtime yang terhenti di antara operasi D1/R2 dapat meninggalkan file yatim untuk rekonsiliasi. Gambar preview lokal dari sesi lama tidak dapat dipulihkan setelah refresh.
+
+Input harga referensi, estimasi awal, dan nominal pembayaran memakai pemisah ribuan koma (`1,000,000`), sedangkan nilai ke API tetap angka mentah. Tampilan ringkasan rupiah tetap mengikuti format Indonesia.

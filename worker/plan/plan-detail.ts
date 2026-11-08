@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { z } from "zod";
 import { validateInvoice } from "./invoice";
+import { candidateBody, cleanupImage } from "./reference-image";
 import {
   amount,
   ApiError,
@@ -30,6 +31,7 @@ const candidateSchema = z
       ),
     price: amount,
     note,
+    removeImage: z.boolean().optional(),
   })
   .strict();
 
@@ -74,6 +76,11 @@ app.patch("/items/:id", async (c) => {
 app.delete("/items/:id", async (c) => {
   const id = c.req.param("id");
 
+  const images = await c.env.DB.prepare(
+    "SELECT image_key AS key FROM candidates WHERE item_id = ? AND image_key IS NOT NULL",
+  )
+    .bind(id)
+    .all<{ key: string }>();
   const result = await c.env.DB.batch([
     c.env.DB.prepare(
       `UPDATE items SET selected_candidate_id = NULL, agreed_amount = NULL WHERE id = ?`,
@@ -86,63 +93,158 @@ app.delete("/items/:id", async (c) => {
     throw missing();
   }
 
+  await Promise.all(
+    images.results.map((image) => cleanupImage(c.env.INVOICES, image.key)),
+  );
   return c.body(null, 204);
 });
 
 app.post("/items/:id/candidates", async (c) => {
-  const value = await body(c.req.raw, candidateSchema);
-
-  const id = crypto.randomUUID();
-
-  await c.env.DB.prepare(
-    "INSERT INTO candidates(id,item_id,name,url,price,note) VALUES(?,?,?,?,?,?)",
+  const { request, image } = await candidateBody(c.req.raw);
+  const value = await body(request, candidateSchema);
+  if (image && value.removeImage)
+    throw new ApiError(
+      "VALIDATION_ERROR",
+      422,
+      "Pilih gambar baru atau hapus gambar.",
+    );
+  const itemId = c.req.param("id");
+  if (
+    !(await c.env.DB.prepare("SELECT id FROM items WHERE id = ?")
+      .bind(itemId)
+      .first())
   )
-    .bind(
-      id,
-      c.req.param("id"),
-      value.name,
-      value.url,
-      value.price,
-      value.note ?? null,
+    throw missing();
+  const id = crypto.randomUUID();
+  const key = image ? `references/${id}/${crypto.randomUUID()}` : null;
+  if (image && key) {
+    await c.env.INVOICES.put(key, image.stream(), {
+      httpMetadata: { contentType: image.type },
+    });
+  }
+  try {
+    await c.env.DB.prepare(
+      "INSERT INTO candidates(id,item_id,name,url,price,note,image_key,image_type) VALUES(?,?,?,?,?,?,?,?)",
     )
-    .run();
-
-  return c.json({ data: await detail(c.env.DB, c.req.param("id")) }, 201);
+      .bind(
+        id,
+        itemId,
+        value.name,
+        value.url,
+        value.price,
+        value.note ?? null,
+        key,
+        image?.type ?? null,
+      )
+      .run();
+  } catch (error) {
+    await cleanupImage(c.env.INVOICES, key);
+    throw error;
+  }
+  try {
+    return c.json({ data: await detail(c.env.DB, itemId) }, 201);
+  } catch {
+    return c.json({ data: null, meta: { referenceSaved: true } }, 201);
+  }
 });
 
 app.patch("/items/:id/candidates/:candidateId", async (c) => {
+  const { request, image } = await candidateBody(c.req.raw);
   const value = await body(
-    c.req.raw,
+    request,
     candidateSchema
       .partial()
-      .refine((v) => Object.keys(v).length > 0, "Isi perubahan."),
+      .refine((v) => image || Object.keys(v).length > 0, "Isi perubahan."),
   );
-
-  const result = await c.env.DB.prepare(
-    `UPDATE candidates SET name = COALESCE(?,name), url = COALESCE(?,url), price = COALESCE(?,price), note = CASE WHEN ? THEN ? ELSE note END, updated_at = ${now} WHERE id = ? AND item_id = ?`,
+  if (image && value.removeImage)
+    throw new ApiError(
+      "VALIDATION_ERROR",
+      422,
+      "Pilih gambar baru atau hapus gambar.",
+    );
+  const id = c.req.param("candidateId");
+  const itemId = c.req.param("id");
+  const previous = await c.env.DB.prepare(
+    "SELECT image_key AS key FROM candidates WHERE id = ? AND item_id = ?",
   )
-    .bind(
-      value.name ?? null,
-      value.url ?? null,
-      value.price ?? null,
-      "note" in value ? 1 : 0,
-      value.note ?? null,
-      c.req.param("candidateId"),
-      c.req.param("id"),
-    )
-    .run();
-
-  if (!result.meta.changes) {
-    throw missing();
+    .bind(id, itemId)
+    .first<{ key: string | null }>();
+  if (!previous) throw missing();
+  const changed = !!image || value.removeImage === true;
+  const key = image ? `references/${id}/${crypto.randomUUID()}` : null;
+  if (image && key) {
+    await c.env.INVOICES.put(key, image.stream(), {
+      httpMetadata: { contentType: image.type },
+    });
   }
+  try {
+    const result = await c.env.DB.prepare(
+      `UPDATE candidates SET name = COALESCE(?,name), url = COALESCE(?,url), price = COALESCE(?,price), note = CASE WHEN ? THEN ? ELSE note END, image_key = CASE WHEN ? THEN ? ELSE image_key END, image_type = CASE WHEN ? THEN ? ELSE image_type END, updated_at = ${now} WHERE id = ? AND item_id = ? AND (? = 0 OR image_key IS ?)`,
+    )
+      .bind(
+        value.name ?? null,
+        value.url ?? null,
+        value.price ?? null,
+        "note" in value ? 1 : 0,
+        value.note ?? null,
+        changed ? 1 : 0,
+        key,
+        changed ? 1 : 0,
+        image?.type ?? null,
+        id,
+        itemId,
+        changed ? 1 : 0,
+        previous.key,
+      )
+      .run();
+    if (!result.meta.changes)
+      throw new ApiError(
+        "REFERENCE_CHANGED",
+        409,
+        "Referensi berubah. Muat ulang sebelum menyimpan kembali.",
+      );
+  } catch (error) {
+    await cleanupImage(c.env.INVOICES, key);
+    throw error;
+  }
+  if (changed) await cleanupImage(c.env.INVOICES, previous.key);
+  // ponytail: D1/R2 have no shared transaction; interrupted cleanup can leave orphaned files for reconciliation.
+  try {
+    return c.json({ data: await detail(c.env.DB, itemId) });
+  } catch {
+    return c.json({ data: null, meta: { referenceSaved: true } });
+  }
+});
 
-  return c.json({ data: await detail(c.env.DB, c.req.param("id")) });
+app.get("/items/:id/candidates/:candidateId/image", async (c) => {
+  const row = await c.env.DB.prepare(
+    "SELECT image_key AS key, image_type AS type FROM candidates WHERE id = ? AND item_id = ?",
+  )
+    .bind(c.req.param("candidateId"), c.req.param("id"))
+    .first<{ key: string | null; type: string }>();
+  if (!row?.key) throw missing();
+  const object = await c.env.INVOICES.get(row.key);
+  if (!object) throw missing();
+  return new Response(object.body, {
+    headers: {
+      "Content-Type": row.type,
+      "Content-Length": String(object.size),
+      "Cache-Control": "private, no-store",
+      "X-Content-Type-Options": "nosniff",
+    },
+  });
 });
 
 app.delete("/items/:id/candidates/:candidateId", async (c) => {
   const id = c.req.param("id");
 
   const candidateId = c.req.param("candidateId");
+
+  const image = await c.env.DB.prepare(
+    "SELECT image_key AS key FROM candidates WHERE id = ? AND item_id = ?",
+  )
+    .bind(candidateId, id)
+    .first<{ key: string | null }>();
 
   const result = await c.env.DB.batch([
     c.env.DB.prepare(
@@ -157,6 +259,7 @@ app.delete("/items/:id/candidates/:candidateId", async (c) => {
     throw missing();
   }
 
+  await cleanupImage(c.env.INVOICES, image?.key);
   return c.body(null, 204);
 });
 

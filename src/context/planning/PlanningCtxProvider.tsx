@@ -34,8 +34,6 @@ function PlanningStateProvider({
   children,
   itemId,
 }: PlanningCtxProviderProps & { itemId: string }) {
-  const [images, setImages] = useState<Record<string, string | undefined>>({});
-
   const [activeTab, setActiveTab] = useState<DetailTabKey>("references");
 
   const [choosing, setChoosing] = useState(false);
@@ -51,10 +49,7 @@ function PlanningStateProvider({
 
   const item = resource.data;
 
-  const references = (item?.candidates ?? []).map((candidate) => ({
-    ...candidate,
-    image: images[candidate.id],
-  }));
+  const references = item?.candidates ?? [];
 
   const selected = references.find(
     (candidate) => candidate.id === item?.selectedCandidateId,
@@ -92,39 +87,20 @@ function PlanningStateProvider({
     }
   }
 
-  async function saveReference(candidate: Candidate) {
+  async function saveReference(candidate: Candidate, imageFile?: File) {
     const existing = references.some((entry) => entry.id === candidate.id);
-
-    const data = {
-      name: candidate.name,
-      url: candidate.url,
-      price: candidate.price,
-      note: candidate.note ?? null,
-    };
-
-    const fresh = await mutate(
+    const data = new FormData();
+    data.set("name", candidate.name);
+    data.set("url", candidate.url);
+    data.set("price", String(candidate.price));
+    data.set("note", candidate.note ?? "");
+    if (imageFile) data.set("image", imageFile);
+    else if (!candidate.image && existing) data.set("removeImage", "true");
+    await mutate(
       existing ? `/candidates/${candidate.id}` : "/candidates",
       existing ? "PATCH" : "POST",
       data,
     );
-
-    if (existing) {
-      setImages((previous) => ({
-        ...previous,
-        [candidate.id]: candidate.image,
-      }));
-    } else if (candidate.image) {
-      const added = fresh.candidates.filter(
-        (entry) => !references.some((old) => old.id === entry.id),
-      );
-
-      if (added.length === 1) {
-        setImages((previous) => ({
-          ...previous,
-          [added[0].id]: candidate.image,
-        }));
-      }
-    }
   }
 
   const value: PlanningCtxValue = {
