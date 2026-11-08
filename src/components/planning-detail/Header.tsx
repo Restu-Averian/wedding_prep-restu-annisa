@@ -1,9 +1,10 @@
-export interface HeaderProps {
-  categoryName?: string
-  itemName: string
-}
+import { usePlanningCtx } from '../../context/planning/PlanningCtxProvider'
+import { CATEGORIES } from '../../constants/planning'
 
-export function Header({ categoryName, itemName }: HeaderProps) {
+export function Header() {
+  const { item } = usePlanningCtx()
+  const categoryName = CATEGORIES.find(({ id }) => id === item?.categoryId)?.name
+  const itemName = item?.name
   return (
     <header>
       {categoryName && <p className="eyebrow">{categoryName}</p>}

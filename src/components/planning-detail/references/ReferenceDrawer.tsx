@@ -1,32 +1,24 @@
+import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
 import {
   useState,
   useRef,
   useEffect,
-  type Dispatch,
   type ChangeEvent,
   type FormEvent,
 } from "react";
-import type { Candidate } from "../../../data/wedding";
+import type { Candidate } from "../../../context/planning/types";
 import { ReferenceSheet } from "../../../styles/PlanningDetail.styles";
 import { formatRupiah } from "../../../utils/currency";
 
 export interface ReferenceDrawerProps {
-  itemId: string;
   candidate: Candidate | null;
-  minimumPrice: number;
-  onSave: Dispatch<Candidate>;
-  onAfterSave?: () => void;
-  onClose: () => void;
+  // eslint-disable-next-line no-unused-vars
+  onClose: (saved?: boolean) => void;
 }
 
-export function ReferenceDrawer({
-  itemId,
-  candidate,
-  minimumPrice,
-  onSave,
-  onAfterSave,
-  onClose,
-}: ReferenceDrawerProps) {
+export function ReferenceDrawer({ candidate, onClose }: ReferenceDrawerProps) {
+  const { item, selectedId, paid, setReferences } = usePlanningCtx();
+  const minimumPrice = candidate?.id === selectedId ? Math.max(1, paid) : 1;
   const [image, setImage] = useState(candidate?.image);
   const [readingImage, setReadingImage] = useState(false);
   const [error, setError] = useState("");
@@ -78,7 +70,7 @@ export function ReferenceDrawer({
 
   function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (readingImage || submittedRef.current) return;
+    if (!item || readingImage || submittedRef.current) return;
     const data = new FormData(event.currentTarget);
     const name = String(data.get("name") ?? "").trim();
     const price = Number(data.get("price"));
@@ -104,15 +96,22 @@ export function ReferenceDrawer({
       }
     }
     submittedRef.current = true;
-    onSave({
+    const reference: Candidate = {
       id: candidate?.id ?? crypto.randomUUID(),
-      itemId,
+      itemId: item.id,
       name,
       price,
       url: url || undefined,
       image,
-    });
-    onAfterSave?.();
+    };
+    setReferences((previous) =>
+      previous.some(({ id }) => id === reference.id)
+        ? previous.map((entry) =>
+            entry.id === reference.id ? reference : entry,
+          )
+        : [...previous, reference],
+    );
+    onClose(true);
   }
 
   useEffect(() => {
@@ -134,7 +133,7 @@ export function ReferenceDrawer({
       ref={dialogRef}
       aria-labelledby="reference-title"
       aria-describedby="reference-description"
-      onClose={onClose}
+      onClose={() => onClose()}
     >
       <div className="sheet-heading">
         <h2 id="reference-title">

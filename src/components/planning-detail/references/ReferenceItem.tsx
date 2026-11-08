@@ -1,24 +1,21 @@
-import type { Candidate } from "../../../data/wedding";
+import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
+import type { Candidate } from "../../../context/planning/types";
 import { formatRupiah } from "../../../utils/currency";
-import { CheckIcon, EditIcon, ExternalLinkIcon } from "../Icons";
+import { CheckIcon, EditIcon, ExternalLinkIcon } from "../../../asset";
 
 export interface ReferenceItemProps {
   candidate: Candidate;
-  isSelected: boolean;
-  cannotSelect: boolean;
-  // eslint-disable-next-line no-unused-vars
-  onSelect: (candidateId: string) => void;
   // eslint-disable-next-line no-unused-vars
   onEdit: (candidate: Candidate) => void;
 }
 
 export function ReferenceItem({
   candidate,
-  isSelected,
-  cannotSelect,
-  onSelect,
   onEdit,
 }: ReferenceItemProps) {
+  const { selectedId, paid, setSelectedId, setChoosing } = usePlanningCtx();
+  const isSelected = candidate.id === selectedId;
+  const cannotSelect = candidate.price < paid;
   return (
     <li className={`reference ${isSelected ? "is-selected" : ""}`}>
       <div className="reference-identity">
@@ -75,7 +72,10 @@ export function ReferenceItem({
               className="primary select-btn"
               type="button"
               disabled={cannotSelect}
-              onClick={() => onSelect(candidate.id)}
+              onClick={() => {
+                setSelectedId(candidate.id);
+                setChoosing(false);
+              }}
             >
               Pilih Ini
             </button>

@@ -1,17 +1,18 @@
-import type { Candidate } from "../../../data/wedding";
+import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
+import type { Candidate } from "../../../context/planning/types";
 import { formatRupiah } from "../../../utils/currency";
-import { CheckIcon, EditIcon, ExternalLinkIcon } from "../Icons";
+import { CheckIcon, EditIcon, ExternalLinkIcon } from "../../../asset";
 
 export interface ReferenceItemSelectedProps {
-  selected: Candidate;
   // eslint-disable-next-line no-unused-vars
   onEdit: (candidate: Candidate) => void;
 }
 
 export function ReferenceItemSelected({
-  selected,
   onEdit,
 }: ReferenceItemSelectedProps) {
+  const { selected } = usePlanningCtx();
+  if (!selected) return null;
   return (
     <div className="selected-reference">
       <div className="reference-identity">

@@ -1,19 +1,8 @@
-import { StoreIcon, WalletIcon } from './Icons'
+import { usePlanningCtx } from '../../context/planning/PlanningCtxProvider'
+import { StoreIcon, WalletIcon } from '../../asset'
 
-export type DetailTabKey = 'references' | 'payments'
-
-export interface TabsProps {
-  activeTab: DetailTabKey
-  // eslint-disable-next-line no-unused-vars
-  onChangeTab: (tab: DetailTabKey) => void
-  referenceCount: number
-}
-
-export function Tabs({
-  activeTab,
-  onChangeTab,
-  referenceCount,
-}: TabsProps) {
+export function Tabs() {
+  const { activeTab, setActiveTab, references } = usePlanningCtx()
   return (
     <div className="tab-bar" role="tablist" aria-label="Menu Detail Rencana">
       <button
@@ -23,11 +12,11 @@ export function Tabs({
         aria-selected={activeTab === 'references'}
         aria-controls="panel-references"
         className="tab-button"
-        onClick={() => onChangeTab('references')}
+        onClick={() => setActiveTab('references')}
       >
         <StoreIcon size={16} />
         <span>Referensi</span>
-        <span className="tab-pill">{referenceCount}</span>
+        <span className="tab-pill">{references.length}</span>
       </button>
 
       <button
@@ -37,7 +26,7 @@ export function Tabs({
         aria-selected={activeTab === 'payments'}
         aria-controls="panel-payments"
         className="tab-button"
-        onClick={() => onChangeTab('payments')}
+        onClick={() => setActiveTab('payments')}
       >
         <WalletIcon size={16} />
         <span>Pembayaran</span>

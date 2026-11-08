@@ -1,8 +1,4 @@
-export interface Category {
-  id: string
-  name: string
-  estimate: number
-}
+import type { Category, WeddingItem, Candidate, Payment } from '../../context/planning/types'
 
 export const CATEGORIES = [
   { id: 'lamaran', name: 'Lamaran', estimate: 5250000 },
@@ -11,32 +7,6 @@ export const CATEGORIES = [
   { id: 'mahar', name: 'Mahar', estimate: 27052028 },
   { id: 'akad-nikah', name: 'Akad Nikah', estimate: 3650000 },
 ] as const satisfies readonly Category[]
-
-export interface WeddingItem {
-  id: string
-  name: string
-  categoryId: typeof CATEGORIES[number]['id']
-  estimate: number
-  selectedCandidateId?: string
-}
-
-export interface Candidate {
-  id: string
-  itemId: string
-  name: string
-  price: number
-  url?: string
-  image?: string
-}
-
-export interface Payment {
-  id: string
-  itemId: string
-  kind: string
-  amount: number
-  date: string
-  note?: string
-}
 
 // ponytail: contoh UI parsial; total Home tetap memakai estimasi kategori awal.
 export const ITEMS: WeddingItem[] = [
@@ -63,9 +33,3 @@ export const PAYMENTS: Payment[] = [
   { id: 'makeup-dp', itemId: 'makeup', kind: 'DP', amount: 100000, date: '2026-10-25', note: 'Contoh pembayaran awal' },
   { id: 'ring-full', itemId: 'cincin-lamaran', kind: 'Pelunasan', amount: 2000000, date: '2026-10-26' },
 ]
-
-// Backward compatibility aliases
-export const categories = CATEGORIES
-export const items = ITEMS
-export const candidates = CANDIDATES
-export const payments = PAYMENTS

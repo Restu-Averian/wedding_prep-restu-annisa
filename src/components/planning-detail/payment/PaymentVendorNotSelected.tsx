@@ -1,15 +1,10 @@
+import { usePlanningCtx } from '../../../context/planning/PlanningCtxProvider'
 import { formatRupiah } from '../../../utils/currency'
-import { InfoIcon, StoreIcon } from '../Icons'
+import { InfoIcon, StoreIcon } from '../../../asset'
 
-export interface PaymentVendorNotSelectedProps {
-  estimate: number
-  onSwitchToReferences?: () => void
-}
-
-export function PaymentVendorNotSelected({
-  estimate,
-  onSwitchToReferences,
-}: PaymentVendorNotSelectedProps) {
+export function PaymentVendorNotSelected() {
+  const { item, setActiveTab } = usePlanningCtx()
+  const estimate = item?.estimate ?? 0
   return (
     <div className="notice-box payment-notice">
       <div className="notice-content">
@@ -24,16 +19,14 @@ export function PaymentVendorNotSelected({
           </p>
         </div>
       </div>
-      {onSwitchToReferences && (
         <button
           type="button"
           className="secondary select-vendor-shortcut"
-          onClick={onSwitchToReferences}
+          onClick={() => setActiveTab('references')}
         >
           <StoreIcon size={16} />
           <span>Pilih Vendor Sekarang</span>
         </button>
-      )}
     </div>
   )
 }

@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
-import { CATEGORIES } from '../../constants/home'
+import { Link } from "react-router-dom";
+import { CATEGORIES } from "../../constants/home";
 
 export function CategoryGrid() {
   return (
@@ -7,6 +7,7 @@ export function CategoryGrid() {
       <div className="categories-header">
         <h2 id="categories-title">Kategori Persiapan</h2>
       </div>
+
       <div className="category-grid">
         {CATEGORIES.map(({ id, name, estimate, icon: Icon }) => (
           <Link
@@ -17,6 +18,7 @@ export function CategoryGrid() {
             <div className="icon-wrapper">
               <Icon />
             </div>
+
             <div className="card-info">
               <span className="category-name">{name}</span>
               <span className="category-estimate">{estimate}</span>
@@ -25,6 +27,5 @@ export function CategoryGrid() {
         ))}
       </div>
     </section>
-  )
+  );
 }
-

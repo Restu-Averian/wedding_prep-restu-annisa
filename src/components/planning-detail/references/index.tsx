@@ -1,40 +1,18 @@
+import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
 import { useState } from "react";
-import type { Candidate } from "../../../data/wedding";
-import { PlusIcon } from "../Icons";
+import type { Candidate } from "../../../context/planning/types";
+import { PlusIcon } from "../../../asset";
 import { ReferenceDrawer } from "./ReferenceDrawer";
 import { ReferenceItem } from "./ReferenceItem";
 import { ReferenceItemSelected } from "./ReferenceItemSelected";
 
-export interface ReferenceSectionProps {
-  itemId: string;
-  references: Candidate[];
-  selected?: Candidate;
-  selectedId?: string;
-  choosing: boolean;
-  paid: number;
-  // eslint-disable-next-line no-unused-vars
-  onSelect: (candidateId: string) => void;
-  onToggleChoosing: () => void;
-  // eslint-disable-next-line no-unused-vars
-  onSaveReference: (reference: Candidate) => void;
-  onAfterSave?: () => void;
-}
-
-export function ReferenceSection({
-  itemId,
-  references,
-  selected,
-  selectedId,
-  choosing,
-  paid,
-  onSelect,
-  onToggleChoosing,
-  onSaveReference,
-  onAfterSave,
-}: ReferenceSectionProps) {
+export function ReferenceSection() {
   const [referenceDraft, setReferenceDraft] = useState<
     Candidate | null | undefined
   >(undefined);
+
+  const { references, selected, choosing, setChoosing } = usePlanningCtx();
+
   return (
     <section
       id="panel-references"
@@ -51,7 +29,7 @@ export function ReferenceSection({
           <button
             className="secondary toggle-btn"
             type="button"
-            onClick={onToggleChoosing}
+            onClick={() => setChoosing(!choosing)}
           >
             {choosing ? "Batal Ubah" : "Ubah Pilihan"}
           </button>
@@ -59,10 +37,7 @@ export function ReferenceSection({
       </div>
 
       {selected && !choosing ? (
-        <ReferenceItemSelected
-          selected={selected}
-          onEdit={setReferenceDraft}
-        />
+        <ReferenceItemSelected onEdit={setReferenceDraft} />
       ) : (
         <>
           {!selected && (
@@ -80,9 +55,6 @@ export function ReferenceSection({
                 <ReferenceItem
                   key={candidate.id}
                   candidate={candidate}
-                  isSelected={candidate.id === selectedId}
-                  cannotSelect={candidate.price < paid}
-                  onSelect={onSelect}
                   onEdit={setReferenceDraft}
                 />
               ))}
@@ -101,8 +73,10 @@ export function ReferenceSection({
         onClick={() => setReferenceDraft(null)}
       >
         <PlusIcon size={16} />
+
         <span>Tambah Referensi</span>
       </button>
+
       <p className="hint">
         Perubahan referensi dan gambar hanya tersimpan selama detail ini
         terbuka.
@@ -110,19 +84,11 @@ export function ReferenceSection({
 
       {referenceDraft !== undefined && (
         <ReferenceDrawer
-          itemId={itemId}
           candidate={referenceDraft}
-          minimumPrice={
-            referenceDraft?.id === selectedId ? Math.max(1, paid) : 1
-          }
-          onSave={(reference) => {
-            onSaveReference(reference);
+          onClose={(saved) => {
+            if (saved && referenceDraft === null) setChoosing(true);
             setReferenceDraft(undefined);
           }}
-          onAfterSave={() => {
-            if (!referenceDraft) onAfterSave?.();
-          }}
-          onClose={() => setReferenceDraft(undefined)}
         />
       )}
     </section>
