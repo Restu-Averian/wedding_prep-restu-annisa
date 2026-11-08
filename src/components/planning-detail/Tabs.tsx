@@ -2,7 +2,7 @@ import { usePlanningCtx } from '../../context/planning/PlanningCtxProvider'
 import { StoreIcon, WalletIcon } from '../../asset'
 
 export function Tabs() {
-  const { activeTab, setActiveTab, references } = usePlanningCtx()
+  const { activeTab, setActiveTab, references, selected } = usePlanningCtx()
   return (
     <div className="tab-bar" role="tablist" aria-label="Menu Detail Rencana">
       <button
@@ -19,7 +19,7 @@ export function Tabs() {
         <span className="tab-pill">{references.length}</span>
       </button>
 
-      <button
+      {selected && <button
         type="button"
         role="tab"
         id="tab-payments"
@@ -30,7 +30,7 @@ export function Tabs() {
       >
         <WalletIcon size={16} />
         <span>Pembayaran</span>
-      </button>
+      </button>}
     </div>
   )
 }

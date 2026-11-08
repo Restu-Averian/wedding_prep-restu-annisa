@@ -4,7 +4,6 @@ import { CATEGORY_ICONS, GridIcon, SearchIcon, CloseIcon } from "../../asset";
 export interface FilterProps {
   search: string;
   selectedCategoryId?: string;
-  // eslint-disable-next-line no-unused-vars
   onUpdateFilter: (key: string, value: string) => void;
   categoryList?: readonly { id: string; name: string }[];
 }

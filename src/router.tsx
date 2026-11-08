@@ -5,6 +5,7 @@ import Home from './pages/Home'
 import Planning from './pages/planning'
 import PlanningDetail from './pages/planning/PlanningDetail'
 import PlanningCtxProvider from './context/planning/PlanningCtxProvider'
+import NotFound from './pages/NotFound'
 
 export const ROUTES: RouteObject[] = [
   {
@@ -21,6 +22,7 @@ export const ROUTES: RouteObject[] = [
         ),
       },
       { path: '/pembayaran', loader: () => redirect('/rencana') },
+      { path: '*', element: <NotFound /> },
     ],
   },
 ]

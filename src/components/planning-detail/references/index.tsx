@@ -1,17 +1,20 @@
 import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
 import { useState } from "react";
 import type { Candidate } from "../../../context/planning/types";
-import { PlusIcon } from "../../../asset";
+import { PlusIcon, InfoIcon, StoreIcon } from "../../../asset";
 import { ReferenceDrawer } from "./ReferenceDrawer";
 import { ReferenceItem } from "./ReferenceItem";
-import { ReferenceItemSelected } from "./ReferenceItemSelected";
 
 export function ReferenceSection() {
   const [referenceDraft, setReferenceDraft] = useState<
     Candidate | null | undefined
   >(undefined);
 
-  const { references, selected, choosing, setChoosing } = usePlanningCtx();
+  const { references, selected, setChoosing } = usePlanningCtx();
+
+  const sortedReferences = selected
+    ? [selected, ...references.filter((c) => c.id !== selected.id)]
+    : references;
 
   return (
     <section
@@ -21,65 +24,73 @@ export function ReferenceSection() {
       className="detail-section"
     >
       <div className="section-heading">
-        <h2 id="references-title">
-          {selected ? "Pilihan Final" : "Daftar Referensi Produk / Vendor"}
-        </h2>
+        <div className="section-title-wrap">
+          <h2 id="references-title">Referensi Produk / Vendor</h2>
+          <span className="reference-count-pill">
+            {references.length} Opsi
+          </span>
+        </div>
 
-        {selected && (
+        {references.length > 0 && (
           <button
-            className="secondary toggle-btn"
+            className="primary add-btn-compact"
             type="button"
-            onClick={() => setChoosing(!choosing)}
+            onClick={() => setReferenceDraft(null)}
           >
-            {choosing ? "Batal Ubah" : "Ubah Pilihan"}
+            <PlusIcon size={14} />
+            <span>Tambah Produk</span>
           </button>
         )}
       </div>
 
-      {selected && !choosing ? (
-        <ReferenceItemSelected onEdit={setReferenceDraft} />
-      ) : (
-        <>
-          {!selected && (
-            <div className="notice-box">
-              <p className="hint">
-                Pilih satu referensi final untuk menetapkan harga dan
-                melanjutkan pembayaran.
+      {!selected && references.length > 0 && (
+        <div className="notice-box">
+          <div className="notice-content">
+            <InfoIcon size={18} />
+            <div>
+              <strong>Tentukan Pilihan Final</strong>
+              <p>
+                Pilih salah satu referensi vendor di bawah untuk mengunci harga
+                dan melanjutkan pembayaran.
               </p>
             </div>
-          )}
-
-          {references.length ? (
-            <ul className="reference-list">
-              {references.map((candidate) => (
-                <ReferenceItem
-                  key={candidate.id}
-                  candidate={candidate}
-                  onEdit={setReferenceDraft}
-                />
-              ))}
-            </ul>
-          ) : (
-            <div className="empty-box">
-              <p className="muted">Belum ada referensi untuk kebutuhan ini.</p>
-            </div>
-          )}
-        </>
+          </div>
+        </div>
       )}
 
-      <button
-        className="secondary add-reference-btn"
-        type="button"
-        onClick={() => setReferenceDraft(null)}
-      >
-        <PlusIcon size={16} />
+      {references.length > 0 ? (
+        <ul className="reference-list">
+          {sortedReferences.map((candidate) => (
+            <ReferenceItem
+              key={candidate.id}
+              candidate={candidate}
+              onEdit={setReferenceDraft}
+            />
+          ))}
+        </ul>
+      ) : (
+        <div className="empty-box reference-empty-box">
+          <div className="empty-icon-wrap">
+            <StoreIcon size={24} />
+          </div>
+          <p className="empty-title">Belum Ada Pilihan Vendor</p>
+          <p className="empty-subtitle">
+            Catat dan simpan opsi vendor atau link produk di sini untuk
+            mempermudah perbandingan harga sebelum menentukan pilihan final.
+          </p>
+          <button
+            className="primary add-first-btn"
+            type="button"
+            onClick={() => setReferenceDraft(null)}
+          >
+            <PlusIcon size={16} />
+            <span>Tambah Referensi Pertama</span>
+          </button>
+        </div>
+      )}
 
-        <span>Tambah Referensi</span>
-      </button>
-
-      <p className="hint">
-        Perubahan referensi dan gambar hanya tersimpan selama detail ini
-        terbuka.
+      <p className="hint session-hint">
+        Referensi tersimpan di database. Gambar hanya menjadi preview selama halaman detail ini terbuka.
       </p>
 
       {referenceDraft !== undefined && (

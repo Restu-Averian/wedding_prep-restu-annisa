@@ -4,7 +4,7 @@ import { InfoIcon, StoreIcon } from '../../../asset'
 
 export function PaymentVendorNotSelected() {
   const { item, setActiveTab } = usePlanningCtx()
-  const estimate = item?.estimate ?? 0
+  const estimate = item?.estimatedAmount ?? 0
   return (
     <div className="notice-box payment-notice">
       <div className="notice-content">
@@ -14,8 +14,7 @@ export function PaymentVendorNotSelected() {
           <p>
             Perhitungan di bawah menggunakan estimasi awal kebutuhan (
             {formatRupiah(estimate)}). Anda dapat memilih vendor terlebih
-            dahulu di tab Referensi atau langsung mencatat pembayaran
-            DP/booking.
+            dahulu di tab Referensi untuk mulai mencatat pembayaran.
           </p>
         </div>
       </div>

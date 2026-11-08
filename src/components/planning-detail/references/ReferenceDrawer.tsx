@@ -9,16 +9,19 @@ import {
 import type { Candidate } from "../../../context/planning/types";
 import { ReferenceSheet } from "../../../styles/PlanningDetail.styles";
 import { formatRupiah } from "../../../utils/currency";
+import { TrashIcon } from "../../../asset";
 
 export interface ReferenceDrawerProps {
   candidate: Candidate | null;
-  // eslint-disable-next-line no-unused-vars
   onClose: (saved?: boolean) => void;
 }
 
 export function ReferenceDrawer({ candidate, onClose }: ReferenceDrawerProps) {
-  const { item, selectedId, paid, setReferences } = usePlanningCtx();
-  const minimumPrice = candidate?.id === selectedId ? Math.max(1, paid) : 1;
+  const { item, selectedId, transactions, busy, mutate, saveReference } =
+    usePlanningCtx();
+  const minimumPrice = 0;
+  const priceLocked = candidate?.id === selectedId && transactions.length > 0;
+  const cannotDelete = transactions.length > 0;
   const [image, setImage] = useState(candidate?.image);
   const [readingImage, setReadingImage] = useState(false);
   const [error, setError] = useState("");
@@ -68,9 +71,9 @@ export function ReferenceDrawer({ candidate, onClose }: ReferenceDrawerProps) {
     reader.readAsDataURL(file);
   }
 
-  function save(event: FormEvent<HTMLFormElement>) {
+  async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!item || readingImage || submittedRef.current) return;
+    if (!item || busy || readingImage || submittedRef.current) return;
     const data = new FormData(event.currentTarget);
     const name = String(data.get("name") ?? "").trim();
     const price = Number(data.get("price"));
@@ -101,17 +104,28 @@ export function ReferenceDrawer({ candidate, onClose }: ReferenceDrawerProps) {
       itemId: item.id,
       name,
       price,
-      url: url || undefined,
+      url,
       image,
+      note: String(data.get("note") ?? "").trim(),
     };
-    setReferences((previous) =>
-      previous.some(({ id }) => id === reference.id)
-        ? previous.map((entry) =>
-            entry.id === reference.id ? reference : entry,
-          )
-        : [...previous, reference],
-    );
-    onClose(true);
+    try {
+      await saveReference(reference);
+      onClose(true);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Penyimpanan gagal.");
+      submittedRef.current = false;
+    }
+  }
+
+  async function deleteCandidate() {
+    if (!candidate || cannotDelete || readingImage || busy) return;
+    if (!window.confirm(`Hapus referensi "${candidate.name}"?`)) return;
+    try {
+      await mutate(`/candidates/${candidate.id}`, "DELETE");
+      onClose(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Penghapusan gagal.");
+    }
   }
 
   useEffect(() => {
@@ -133,6 +147,7 @@ export function ReferenceDrawer({ candidate, onClose }: ReferenceDrawerProps) {
       ref={dialogRef}
       aria-labelledby="reference-title"
       aria-describedby="reference-description"
+      onCancel={(event) => { if (busy) event.preventDefault(); }}
       onClose={() => onClose()}
     >
       <div className="sheet-heading">
@@ -143,6 +158,7 @@ export function ReferenceDrawer({ candidate, onClose }: ReferenceDrawerProps) {
         <button
           type="button"
           aria-label="Tutup form referensi"
+          disabled={busy}
           onClick={() => dialogRef.current?.close()}
         >
           ×
@@ -150,8 +166,7 @@ export function ReferenceDrawer({ candidate, onClose }: ReferenceDrawerProps) {
       </div>
 
       <p id="reference-description">
-        Simpan produk atau vendor untuk dibandingkan. Data hanya tersimpan
-        selama detail ini terbuka.
+        Simpan produk atau vendor untuk dibandingkan. Gambar hanya menjadi preview lokal.
       </p>
 
       <form
@@ -174,6 +189,7 @@ export function ReferenceDrawer({ candidate, onClose }: ReferenceDrawerProps) {
 
         <input
           id="reference-price"
+          readOnly={priceLocked}
           name="price"
           type="number"
           min={minimumPrice}
@@ -184,29 +200,26 @@ export function ReferenceDrawer({ candidate, onClose }: ReferenceDrawerProps) {
           required
         />
 
-        {minimumPrice > 1 && (
-          <p className="field-hint">
-            Harga pilihan final minimal {formatRupiah(minimumPrice)}, sesuai
-            total yang sudah dibayar.
-          </p>
-        )}
-
-        <label htmlFor="reference-url">Link produk/vendor (opsional)</label>
+        <label htmlFor="reference-url">Link produk/vendor</label>
 
         <input
           id="reference-url"
+          required
           name="url"
           type="url"
           defaultValue={candidate?.url ?? ""}
           placeholder="https://…"
         />
+        {priceLocked && <p className="field-hint">Harga terkunci karena sudah memiliki riwayat pembayaran.</p>}
+        <label htmlFor="reference-note">Catatan (opsional)</label>
+        <textarea id="reference-note" name="note" rows={3} maxLength={500} defaultValue={candidate?.note ?? ""} />
         <label htmlFor="reference-image">Gambar (opsional)</label>
         <input
           id="reference-image"
           ref={fileRef}
           type="file"
           accept="image/jpeg,image/png,image/webp"
-          disabled={readingImage}
+          disabled={readingImage || busy}
           onChange={chooseImage}
           aria-describedby="reference-image-hint"
         />
@@ -224,7 +237,7 @@ export function ReferenceDrawer({ candidate, onClose }: ReferenceDrawerProps) {
             <button
               className="secondary"
               type="button"
-              disabled={readingImage}
+              disabled={readingImage || busy}
               onClick={() => {
                 setImage(undefined);
                 setError("");
@@ -238,17 +251,49 @@ export function ReferenceDrawer({ candidate, onClose }: ReferenceDrawerProps) {
 
         {error && <p role="alert">{error}</p>}
 
-        <div className="form-actions">
+        {cannotDelete && (
+          <p className="cannot-delete-hint">
+            Referensi terkunci karena kebutuhan ini memiliki riwayat pembayaran.
+          </p>
+        )}
+
+        <div className={`form-actions ${candidate ? "has-delete" : ""}`}>
+          {candidate && (
+            <button
+              className="drawer-delete-icon-btn"
+              type="button"
+              disabled={cannotDelete || readingImage || busy}
+              title={
+                cannotDelete
+                  ? "Tidak bisa dihapus karena memiliki riwayat pembayaran"
+                  : "Hapus referensi ini"
+              }
+              aria-label={`Hapus referensi ${candidate.name}`}
+              onClick={deleteCandidate}
+            >
+              <TrashIcon size={18} />
+            </button>
+          )}
+
           <button
-            className="secondary"
+            className="secondary drawer-cancel-btn"
             type="button"
+            disabled={busy}
             onClick={() => dialogRef.current?.close()}
           >
             Batal
           </button>
 
-          <button className="primary" type="submit" disabled={readingImage}>
-            {candidate ? "Simpan Perubahan" : "Tambah Referensi"}
+          <button
+            className="primary drawer-submit-btn"
+            type="submit"
+            disabled={readingImage || busy}
+          >
+            {busy
+              ? "Menyimpan…"
+              : candidate
+                ? "Simpan"
+                : "Tambah Referensi"}
           </button>
         </div>
       </form>

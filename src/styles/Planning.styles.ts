@@ -356,5 +356,5 @@ export const PaymentSheet = styled.dialog`
   p { margin: 16px 0; color: #7a6656; font-size: 0.875rem; }
   form { display: grid; gap: 8px; margin-top: 24px; }
   form label:not(:first-child) { margin-top: 12px; }
-  form button { margin-top: 16px; }
+  form button { margin-top: 16px; width: 100%; min-height: 46px; font-weight: 600; }
 `

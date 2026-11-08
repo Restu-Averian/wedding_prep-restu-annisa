@@ -13,12 +13,14 @@ export interface PaymentDrawerProps {
 }
 
 export function PaymentDrawer({ onClose }: PaymentDrawerProps) {
-  const { item, remaining, setTransactions } = usePlanningCtx();
+  const { item, remaining, busy, mutate } = usePlanningCtx();
   const [error, setError] = useState("");
   const [isClosing, setIsClosing] = useState(false);
+  const submittingRef = useRef(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   const handleClose = useCallback(() => {
+    if (submittingRef.current) return;
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
       dialogRef.current?.close();
       return;
@@ -83,13 +85,12 @@ export function PaymentDrawer({ onClose }: PaymentDrawerProps) {
         </button>
       </div>
       <p id="drawer-description">
-        {item?.name} · Simulasi lokal, tidak disimpan setelah halaman
-        ditinggalkan.
+        {item?.name} · Pembayaran akan tersimpan di database.
       </p>
       <form
-        onSubmit={(event) => {
+        onSubmit={async (event) => {
           event.preventDefault();
-          if (!item || isClosing) return;
+          if (!item || isClosing || submittingRef.current) return;
           const form = event.currentTarget;
           const data = new FormData(form);
           const amount = Number(data.get("amount"));
@@ -108,16 +109,20 @@ export function PaymentDrawer({ onClose }: PaymentDrawerProps) {
             );
             return;
           }
-          const payment = {
-            id: crypto.randomUUID(),
-            itemId: item.id,
-            kind,
-            amount,
-            date,
-            note: String(data.get("note") ?? "").trim(),
-          };
-          setTransactions((previous) => [...previous, payment]);
-          handleClose();
+          submittingRef.current = true;
+          try {
+            const types = { DP: "deposit", Cicilan: "installment", Pelunasan: "settlement" };
+            await mutate("/payments", "POST", {
+              type: types[kind as keyof typeof types], amount, paidAt: date,
+              note: String(data.get("note") ?? "").trim(),
+            });
+            submittingRef.current = false;
+            handleClose();
+          } catch (error) {
+            setError(error instanceof Error ? error.message : "Pembayaran gagal disimpan.");
+          } finally {
+            submittingRef.current = false;
+          }
         }}
         onChange={() => setError("")}
       >
@@ -158,8 +163,8 @@ export function PaymentDrawer({ onClose }: PaymentDrawerProps) {
 
         {error && <p role="alert">{error}</p>}
 
-        <button className="primary" type="submit" disabled={isClosing}>
-          Simpan Simulasi
+        <button className="primary" type="submit" disabled={isClosing || busy}>
+          {busy ? "Menyimpan…" : "Simpan Pembayaran"}
         </button>
       </form>
     </PaymentSheet>

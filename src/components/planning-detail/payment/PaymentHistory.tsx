@@ -1,3 +1,4 @@
+import { PAYMENT_LABELS } from "../../../context/planning/types";
 import { usePlanningCtx } from '../../../context/planning/PlanningCtxProvider'
 import { formatRupiah } from "../../../utils/currency";
 import { CalendarIcon, ChevronDownIcon, NoteIcon, ReceiptIcon } from "../../../asset";
@@ -14,10 +15,10 @@ export function PaymentHistory() {
       {transactions.length > 0 ? (
         <ul className="transactions" aria-labelledby="transactions-title">
           {transactions.map((payment) => {
-            const kindKey = payment.kind.toLowerCase();
+            const kindKey = PAYMENT_LABELS[payment.type].toLowerCase();
 
             const formattedDate = new Date(
-              `${payment.date}T12:00:00`,
+              `${payment.paidAt}T12:00:00`,
             ).toLocaleDateString("id-ID", {
               day: "numeric",
               month: "short",
@@ -25,7 +26,7 @@ export function PaymentHistory() {
             });
 
             const fullDate = new Date(
-              `${payment.date}T12:00:00`,
+              `${payment.paidAt}T12:00:00`,
             ).toLocaleDateString("id-ID", {
               weekday: "long",
               day: "numeric",
@@ -42,11 +43,11 @@ export function PaymentHistory() {
                         className="transaction-kind-badge"
                         data-kind={kindKey}
                       >
-                        {payment.kind}
+                        {PAYMENT_LABELS[payment.type]}{payment.voidedAt ? " · Dibatalkan" : ""}
                       </span>
                       <span className="transaction-date-quick">
                         <CalendarIcon size={13} />
-                        <time dateTime={payment.date}>{formattedDate}</time>
+                        <time dateTime={payment.paidAt}>{formattedDate}</time>
                       </span>
                     </div>
 

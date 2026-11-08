@@ -5,19 +5,26 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "npm run typecheck && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit",
-    "check:routing": "node scripts/check-routing.mjs"
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.worker.json",
+    "check:routing": "node scripts/check-routing.mjs",
+    "dev:api": "wrangler dev --ip 127.0.0.1 --port 8787",
+    "db:migrate:local": "wrangler d1 migrations apply DB --local",
+    "types:worker": "wrangler types --include-runtime false --strict-vars false",
+    "test:api": "node scripts/check-api.mjs"
   },
   "dependencies": {
+    "hono": "^4.13.17",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router-dom": "^7.18.5",
-    "styled-components": "^6.6.0"
+    "styled-components": "^6.6.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261108.1",
     "@eslint/js": "^10.0.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
@@ -26,6 +33,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
     "globals": "^17.13.0",
+    "jsdom": "^31.0.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.1",
     "vite": "^8.3.5",

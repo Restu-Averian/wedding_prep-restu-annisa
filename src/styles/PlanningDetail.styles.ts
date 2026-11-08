@@ -225,27 +225,39 @@ export const DetailPage = styled(PlanningPage)`
     box-sizing: border-box;
   }
 
-  /* Reference Cards */
-  .selected-reference {
-    display: flex;
-    flex-wrap: wrap;
+  /* Reference Section & Cards */
+  .section-title-wrap {
+    display: inline-flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-    padding: 16px;
-    margin-bottom: 16px;
-    background: #f7efe4;
-    border: 1px solid #dfcfbe;
-    border-radius: 16px;
-    box-shadow: 0 4px 14px rgba(87, 67, 52, 0.05);
-    width: 100%;
+    gap: 8px;
     min-width: 0;
-    box-sizing: border-box;
+  }
+
+  .reference-count-pill {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #ebdcd0;
+    color: #5e4536;
+    flex-shrink: 0;
+  }
+
+  .add-btn-compact {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    min-height: 38px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    border-radius: 10px;
+    flex-shrink: 0;
   }
 
   .reference-list {
     display: grid;
-    gap: 12px;
+    gap: 14px;
     margin: 12px 0 16px;
     padding: 0;
     list-style: none;
@@ -257,61 +269,73 @@ export const DetailPage = styled(PlanningPage)`
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 14px;
+    gap: 12px;
     border: 1px solid #ebdcd0;
-    border-radius: 14px;
-    padding: 16px;
+    border-radius: 16px;
+    padding: 14px 16px;
     background: #fffdfa;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
+    box-shadow: 0 2px 6px rgba(87, 67, 52, 0.03);
   }
 
   .reference:hover {
-    background: #faf5ee;
+    background: #faf6f0;
     border-color: #d6c1b0;
+    box-shadow: 0 4px 12px rgba(87, 67, 52, 0.06);
   }
 
   .reference.is-selected {
-    background: #f9f3ec;
-    border-color: #cbb4a1;
-    box-shadow: 0 2px 8px rgba(87, 67, 52, 0.06);
+    background: #fcf9f5;
+    border: 1.5px solid #c9b09c;
+    box-shadow: 0 4px 16px rgba(121, 83, 68, 0.08);
+  }
+
+  .reference-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
   }
 
   .reference-identity {
     display: flex;
     align-items: center;
     gap: 12px;
-    width: 100%;
+    flex: 1 1 0;
     min-width: 0;
   }
 
-  .reference-identity > div {
+  .reference-info {
+    flex: 1 1 0;
     min-width: 0;
     overflow-wrap: anywhere;
   }
 
   .reference-image {
-    width: 64px;
-    height: 64px;
+    width: 68px;
+    height: 68px;
     flex-shrink: 0;
     object-fit: cover;
-    border-radius: 10px;
+    border-radius: 12px;
     border: 1px solid #ebdcd0;
+    background: #fdfaf6;
   }
 
   .reference-image-placeholder {
-    width: 64px;
-    height: 64px;
+    width: 68px;
+    height: 68px;
     flex-shrink: 0;
-    border-radius: 10px;
-    background: #f0e6dc;
-    border: 1px dashed #ded0bf;
+    border-radius: 12px;
+    background: #f4ece3;
+    border: 1px solid #e5d7c9;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.75rem;
     color: #8c7566;
   }
 
@@ -320,31 +344,71 @@ export const DetailPage = styled(PlanningPage)`
     font-size: 1rem;
     font-weight: 600;
     color: #493426;
+    line-height: 1.35;
   }
 
   .reference-price {
-    margin: 0 0 4px;
+    margin: 0 0 6px;
     font-size: 0.9375rem;
-    font-weight: 600;
+    font-weight: 700;
     color: #795344;
   }
 
-  .reference-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+  .reference-link {
+    display: inline-flex;
     align-items: center;
-    width: 100%;
-    min-width: 0;
-    padding-top: 12px;
-    border-top: 1px solid #f2e7dc;
-    box-sizing: border-box;
+    gap: 4px;
+    font-size: 0.8125rem;
+    color: #795344;
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px dashed #cbb4a1;
+    padding-bottom: 1px;
+    width: fit-content;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: all 0.15s ease;
   }
 
-  .reference-actions .edit-btn {
-    width: 100%;
+  .reference-link:hover {
+    color: #493426;
+    border-bottom-style: solid;
+  }
+
+  .reference-link-empty {
+    font-size: 0.75rem;
+    color: #9c8a7d;
+  }
+
+  .edit-icon-btn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    min-height: 42px;
+    border-radius: 10px;
+    border: 1px solid #e7d8cb;
+    background: #fbf6f0;
+    color: #6a5344;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+  }
+
+  .edit-icon-btn:hover {
+    background: #f3eae0;
+    color: #493426;
+    border-color: #d6c1b0;
+  }
+
+  .reference-actions {
+    width: 100%;
+    min-width: 0;
+    padding-top: 10px;
+    border-top: 1px solid #f2e7dc;
+    box-sizing: border-box;
   }
 
   .reference-actions .select-wrapper {
@@ -355,21 +419,85 @@ export const DetailPage = styled(PlanningPage)`
   .reference-actions .select-btn {
     width: 100%;
     justify-content: center;
-    min-height: 42px;
+    min-height: 44px;
+    font-weight: 600;
   }
 
-  .reference-actions .badge-selected {
+  .select-btn.outline {
+    background: #fffdfa;
+    color: #795344;
+    border: 1.5px solid #795344;
+    box-shadow: 0 1px 3px rgba(121, 83, 68, 0.04);
+    transition: all 0.2s ease;
+  }
+
+  .select-btn.outline:hover:not(:disabled) {
+    background: #f7eee8;
+    border-color: #654333;
+    color: #654333;
+  }
+
+  .badge-selected-status {
     width: 100%;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
+    gap: 6px;
     min-height: 42px;
+    padding: 8px 12px;
     border-radius: 12px;
+    background: #eaf3eb;
+    color: #276738;
+    border: 1px solid #c8e0cc;
+    font-size: 0.875rem;
+    font-weight: 600;
     box-sizing: border-box;
   }
 
-  .reference-actions .hint {
-    margin: 4px 0 0;
+  .cannot-select-hint {
+    margin: 6px 0 0;
     font-size: 0.75rem;
+    color: #a63c22;
     text-align: center;
+  }
+
+  .reference-empty-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 20px;
+    background: #fbf8f4;
+    border: 1.5px dashed #ddcfbe;
+    border-radius: 16px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .reference-empty-box .empty-icon-wrap {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #f0e5d8;
+    color: #795344;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+
+  .add-first-btn {
+    margin-top: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+  }
+
+  .session-hint {
+    text-align: center;
+    margin: 12px 0 4px;
+    font-size: 0.75rem;
+    color: #8c7566;
   }
 
   .edit-btn, .toggle-btn {
@@ -778,13 +906,6 @@ export const DetailPage = styled(PlanningPage)`
     .payment-summary-cards .card-remaining {
       grid-column: span 2;
     }
-
-    .selected-reference {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 12px;
-      padding: 14px;
-    }
   }
 
   @media (max-width: 480px) {
@@ -825,5 +946,65 @@ export const ReferenceSheet = styled(PaymentSheet)`
   .field-hint { margin: 0; font-size: 0.8125rem; }
   .image-preview { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
   .image-preview img { width: 112px; height: 112px; object-fit: contain; border-radius: 8px; }
-  .form-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 12px; }
+  .cannot-delete-hint {
+    margin: 16px 0 0;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: #fff8f6;
+    border: 1px solid #fadcd6;
+    font-size: 0.75rem;
+    color: #a63c22;
+    line-height: 1.4;
+    text-align: center;
+  }
+  .form-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin-top: 18px;
+    box-sizing: border-box;
+  }
+  .form-actions button {
+    min-height: 46px;
+    margin-top: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    box-sizing: border-box;
+    border-radius: 12px;
+  }
+  .drawer-cancel-btn {
+    flex: 1 1 0;
+  }
+  .drawer-submit-btn {
+    flex: 1 1 0;
+  }
+  .form-actions.has-delete .drawer-submit-btn {
+    flex: 1.3 1 0;
+  }
+  .drawer-delete-icon-btn {
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    padding: 0;
+    border-radius: 12px;
+    border: 1.5px solid #f2bdb5;
+    background: #fff6f4;
+    color: #b83321;
+    transition: all 0.2s ease;
+  }
+  .drawer-delete-icon-btn:hover:not(:disabled) {
+    background: #feece8;
+    border-color: #e09b90;
+    color: #962516;
+  }
+  .drawer-delete-icon-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    border-color: #ebdcd0;
+    background: #f7f1ea;
+    color: #9c897c;
+  }
 `

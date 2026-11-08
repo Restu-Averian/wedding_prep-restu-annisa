@@ -1,11 +1,10 @@
 import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
 import type { Candidate } from "../../../context/planning/types";
 import { formatRupiah } from "../../../utils/currency";
-import { CheckIcon, EditIcon, ExternalLinkIcon } from "../../../asset";
+import { CheckIcon, EditIcon, ExternalLinkIcon, StoreIcon } from "../../../asset";
 
 export interface ReferenceItemProps {
   candidate: Candidate;
-  // eslint-disable-next-line no-unused-vars
   onEdit: (candidate: Candidate) => void;
 }
 
@@ -13,75 +12,82 @@ export function ReferenceItem({
   candidate,
   onEdit,
 }: ReferenceItemProps) {
-  const { selectedId, paid, setSelectedId, setChoosing } = usePlanningCtx();
+  const { item, selectedId, transactions, busy, mutate } = usePlanningCtx();
   const isSelected = candidate.id === selectedId;
-  const cannotSelect = candidate.price < paid;
+  const cannotSelect = busy || transactions.length > 0;
+
   return (
     <li className={`reference ${isSelected ? "is-selected" : ""}`}>
-      <div className="reference-identity">
-        {candidate.image ? (
-          <img
-            className="reference-image"
-            src={candidate.image}
-            alt={`Foto ${candidate.name}`}
-          />
-        ) : (
-          <div className="reference-image-placeholder">Foto</div>
-        )}
-
-        <div>
-          <h3 className="reference-title">{candidate.name}</h3>
-
-          <p className="reference-price">{formatRupiah(candidate.price)}</p>
-
-          {candidate.url ? (
-            <a
-              className="text-link with-icon"
-              href={candidate.url}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span>Link produk/vendor</span>
-              <ExternalLinkIcon size={13} />
-            </a>
+      <div className="reference-card-header">
+        <div className="reference-identity">
+          {candidate.image ? (
+            <img
+              className="reference-image"
+              src={candidate.image}
+              alt={`Foto ${candidate.name}`}
+            />
           ) : (
-            <p className="hint">Link belum tersedia.</p>
+            <div className="reference-image-placeholder" aria-label="Foto produk">
+              <StoreIcon size={24} />
+            </div>
           )}
+
+          <div className="reference-info">
+            <h3 className="reference-title">{candidate.name}</h3>
+
+            <p className="reference-price">{formatRupiah(candidate.price)}</p>
+            {isSelected && item?.agreedAmount !== candidate.price && <p className="hint">Harga kesepakatan: {formatRupiah(item?.agreedAmount ?? 0)}</p>}
+
+            {candidate.url ? (
+              <a
+                className="reference-link"
+                href={candidate.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span>Lihat vendor / produk</span>
+                <ExternalLinkIcon size={12} />
+              </a>
+            ) : (
+              <span className="reference-link-empty">Link belum tersedia</span>
+            )}
+          </div>
         </div>
+
+        <button
+          className="edit-icon-btn"
+          type="button"
+          aria-label={`Edit referensi ${candidate.name}`}
+          title="Edit data referensi"
+          onClick={() => onEdit(candidate)}
+        >
+          <EditIcon size={15} />
+        </button>
       </div>
 
       <div className="reference-actions">
-        <button
-          className="secondary edit-btn"
-          type="button"
-          aria-label={`Edit referensi ${candidate.name}`}
-          onClick={() => onEdit(candidate)}
-        >
-          <EditIcon size={14} />
-
-          <span>Edit</span>
-        </button>
-
         {isSelected ? (
-          <span className="badge badge-selected">
-            <CheckIcon size={12} /> Terpilih
-          </span>
+          <div className="badge-selected-status">
+            <CheckIcon size={14} />
+            <span>Sedang Digunakan Sebagai Pilihan Final</span>
+          </div>
         ) : (
           <div className="select-wrapper">
             <button
-              className="primary select-btn"
+              className="outline select-btn"
               type="button"
               disabled={cannotSelect}
               onClick={() => {
-                setSelectedId(candidate.id);
-                setChoosing(false);
+                void mutate("/selection", "PUT", { candidateId: candidate.id }).catch(() => {});
               }}
             >
-              Pilih Ini
+              Pilih Opsi Ini
             </button>
 
             {cannotSelect && (
-              <p className="hint">Harga di bawah total dibayar.</p>
+              <p className="cannot-select-hint">
+                {busy ? "Menyimpan…" : "Pilihan terkunci karena memiliki riwayat pembayaran."}
+              </p>
             )}
           </div>
         )}

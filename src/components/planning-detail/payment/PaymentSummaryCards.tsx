@@ -4,7 +4,7 @@ import { CheckIcon, ClockIcon, WalletIcon } from '../../../asset'
 
 export function PaymentSummaryCards() {
   const { selected, total, paid, remaining, transactions } = usePlanningCtx()
-  const transactionCount = transactions.length
+  const transactionCount = transactions.filter(payment => !payment.voidedAt).length
   const paidPercent = total > 0 ? Math.min(100, Math.round((paid / total) * 100)) : 0
   const isLunas = remaining === 0
 

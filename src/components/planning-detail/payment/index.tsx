@@ -22,6 +22,8 @@ export function PaymentSection() {
         ? "Belum Lunas"
         : "Belum Bayar";
 
+  if (!selected) return null;
+
   return (
     <section
       id="panel-payments"
