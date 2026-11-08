@@ -1,12 +1,9 @@
-import type { Payment } from "../../../data/wedding";
+import { usePlanningCtx } from '../../../context/planning/PlanningCtxProvider'
 import { formatRupiah } from "../../../utils/currency";
-import { CalendarIcon, ChevronDownIcon, NoteIcon, ReceiptIcon } from "../Icons";
+import { CalendarIcon, ChevronDownIcon, NoteIcon, ReceiptIcon } from "../../../asset";
 
-export interface PaymentHistoryProps {
-  transactions: Payment[];
-}
-
-export function PaymentHistory({ transactions }: PaymentHistoryProps) {
+export function PaymentHistory() {
+  const { transactions } = usePlanningCtx();
   return (
     <>
       <div className="transactions-header">

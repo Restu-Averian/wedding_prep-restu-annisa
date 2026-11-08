@@ -1,22 +1,10 @@
-import type { Candidate } from '../../../data/wedding'
+import { usePlanningCtx } from '../../../context/planning/PlanningCtxProvider'
 import { formatRupiah } from '../../../utils/currency'
 import { CheckIcon, ClockIcon, WalletIcon } from '../../../asset'
 
-export interface PaymentSummaryCardsProps {
-  selected?: Candidate
-  total: number
-  paid: number
-  remaining: number
-  transactionCount: number
-}
-
-export function PaymentSummaryCards({
-  selected,
-  total,
-  paid,
-  remaining,
-  transactionCount,
-}: PaymentSummaryCardsProps) {
+export function PaymentSummaryCards() {
+  const { selected, total, paid, remaining, transactions } = usePlanningCtx()
+  const transactionCount = transactions.length
   const paidPercent = total > 0 ? Math.min(100, Math.round((paid / total) * 100)) : 0
   const isLunas = remaining === 0
 

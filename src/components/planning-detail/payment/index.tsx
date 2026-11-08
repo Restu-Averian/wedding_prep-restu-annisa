@@ -1,6 +1,6 @@
 import { useState } from "react";
-import type { Candidate, Payment } from "../../../data/wedding";
-import { CheckIcon, PlusIcon } from "../Icons";
+import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
+import { CheckIcon, PlusIcon } from "../../../asset";
 import { PaymentDrawer } from "./PaymentDrawer";
 import { PaymentVendorNotSelected } from "./PaymentVendorNotSelected";
 import { PaymentSummaryCards } from "./PaymentSummaryCards";
@@ -11,32 +11,16 @@ export { PaymentSummaryCards } from "./PaymentSummaryCards";
 export { PaymentHistory } from "./PaymentHistory";
 export { PaymentDrawer } from "./PaymentDrawer";
 
-export interface PaymentSectionProps {
-  itemName: string;
-  selected?: Candidate;
-  estimate: number;
-  paid: number;
-  remaining: number;
-  status: string;
-  transactions: Payment[];
-  // eslint-disable-next-line no-unused-vars
-  onSavePayment: (payment: Omit<Payment, "id" | "itemId">) => void;
-  onSwitchToReferences?: () => void;
-}
-
-export function PaymentSection({
-  itemName,
-  selected,
-  estimate,
-  paid,
-  remaining,
-  status,
-  transactions,
-  onSavePayment,
-  onSwitchToReferences,
-}: PaymentSectionProps) {
+export function PaymentSection() {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const total = selected ? selected.price : estimate;
+  const { selected, paid, remaining } = usePlanningCtx();
+  const status = !selected
+    ? "Belum Ada Vendor"
+    : remaining === 0
+      ? "Lunas"
+      : paid > 0
+        ? "Belum Lunas"
+        : "Belum Bayar";
 
   return (
     <section
@@ -57,22 +41,9 @@ export function PaymentSection({
         </span>
       </div>
 
-      {!selected && (
-        <PaymentVendorNotSelected
-          estimate={estimate}
-          onSwitchToReferences={onSwitchToReferences}
-        />
-      )}
-
-      <PaymentSummaryCards
-        selected={selected}
-        total={total}
-        paid={paid}
-        remaining={remaining}
-        transactionCount={transactions.length}
-      />
-
-      <PaymentHistory transactions={transactions} />
+      {!selected && <PaymentVendorNotSelected />}
+      <PaymentSummaryCards />
+      <PaymentHistory />
 
       {remaining > 0 && (
         <button
@@ -87,9 +58,6 @@ export function PaymentSection({
 
       {drawerOpen && (
         <PaymentDrawer
-          itemName={itemName}
-          remaining={remaining}
-          onSave={onSavePayment}
           onClose={() => setDrawerOpen(false)}
         />
       )}

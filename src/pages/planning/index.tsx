@@ -2,7 +2,7 @@ import { useSearchParams } from "react-router-dom";
 import { Header } from "../../components/planning/Header";
 import { Filter } from "../../components/planning/Filter";
 import { List } from "../../components/planning/List";
-import { CATEGORIES, ITEMS } from "../../data/wedding";
+import { CATEGORIES, ITEMS } from "../../constants/planning";
 import { PlanningPage } from "../../styles/Planning.styles";
 
 export default function Planning() {

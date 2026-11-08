@@ -16,6 +16,15 @@ export { CloseIcon } from './CloseIcon'
 export { GridIcon } from './GridIcon'
 export { WalletIcon } from './WalletIcon'
 export { ClockIcon } from './ClockIcon'
+export { StoreIcon } from './StoreIcon'
+export { ExternalLinkIcon } from './ExternalLinkIcon'
+export { PlusIcon } from './PlusIcon'
+export { EditIcon } from './EditIcon'
+export { InfoIcon } from './InfoIcon'
+export { CalendarIcon } from './CalendarIcon'
+export { ChevronDownIcon } from './ChevronDownIcon'
+export { NoteIcon } from './NoteIcon'
+export { ReceiptIcon } from './ReceiptIcon'
 
 export const CATEGORY_ICONS: Record<
   string,

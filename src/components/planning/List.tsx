@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
-import { CATEGORIES, type WeddingItem } from '../../data/wedding'
+import { CATEGORIES } from '../../constants/planning'
+import type { WeddingItem } from '../../context/planning/types'
 import { formatRupiah } from '../../utils/currency'
 import { CATEGORY_ICONS, CheckIcon } from '../../asset'
 

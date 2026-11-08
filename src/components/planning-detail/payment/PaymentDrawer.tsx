@@ -1,27 +1,19 @@
+import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
 import {
   useState,
   useRef,
   useEffect,
   useCallback,
   type MouseEvent,
-  type Dispatch,
 } from "react";
 import { PaymentSheet } from "../../../styles/Planning.styles";
-import type { Payment } from "../../../data/wedding";
 
 export interface PaymentDrawerProps {
-  itemName: string;
   onClose: () => void;
-  remaining: number;
-  onSave: Dispatch<Omit<Payment, "id" | "itemId">>;
 }
 
-export function PaymentDrawer({
-  itemName,
-  onClose,
-  remaining,
-  onSave,
-}: PaymentDrawerProps) {
+export function PaymentDrawer({ onClose }: PaymentDrawerProps) {
+  const { item, remaining, setTransactions } = usePlanningCtx();
   const [error, setError] = useState("");
   const [isClosing, setIsClosing] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -91,13 +83,13 @@ export function PaymentDrawer({
         </button>
       </div>
       <p id="drawer-description">
-        {itemName} · Simulasi lokal, tidak disimpan setelah halaman
+        {item?.name} · Simulasi lokal, tidak disimpan setelah halaman
         ditinggalkan.
       </p>
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          if (isClosing) return;
+          if (!item || isClosing) return;
           const form = event.currentTarget;
           const data = new FormData(form);
           const amount = Number(data.get("amount"));
@@ -116,12 +108,15 @@ export function PaymentDrawer({
             );
             return;
           }
-          onSave({
+          const payment = {
+            id: crypto.randomUUID(),
+            itemId: item.id,
             kind,
             amount,
             date,
             note: String(data.get("note") ?? "").trim(),
-          });
+          };
+          setTransactions((previous) => [...previous, payment]);
           handleClose();
         }}
         onChange={() => setError("")}

@@ -1,4 +1,4 @@
-import { CATEGORIES as DEFAULT_CATEGORIES } from "../../data/wedding";
+import { CATEGORIES as DEFAULT_CATEGORIES } from "../../constants/planning";
 import { CATEGORY_ICONS, GridIcon, SearchIcon, CloseIcon } from "../../asset";
 
 export interface FilterProps {
