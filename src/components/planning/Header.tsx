@@ -16,15 +16,15 @@ export default function Header({ onAdd, canAdd = true }: HeaderProps) {
       {onAdd && (
         <button
           type="button"
-          className="primary add-button"
+          className="primary add-btn-compact"
           disabled={!canAdd}
           onClick={onAdd}
         >
-          <PlusIcon size={16} />
+          <PlusIcon size={14} />
+
           <span>Tambah Kebutuhan</span>
         </button>
       )}
     </header>
   );
 }
-

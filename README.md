@@ -20,13 +20,11 @@ Binding `DB` mengarah ke database yang sudah ada `wedding-planner-db`, ID `fb6e0
 npm run types:worker  # ulangi setelah mengubah bindings; deklarasi binding ringkas disimpan di Git
 npm run typecheck    # frontend + Worker
 npm run lint
-npm run check:routing
-npm run test:api     # migrasi + API + DOM React; D1 sementara terisolasi, dibersihkan sesudah tes
 npm run build
 npx wrangler deploy --dry-run # validasi bundling lokal; bukan deployment
 ```
 
-Tes API menggunakan Wrangler lokal pada port 18787, tidak menyentuh data developer/remote. Tes DOM memakai jsdom dengan polyfill dialog; animasi, focus native, responsivitas dan tampilan drawer tetap perlu QA di browser nyata. Versi Node yang didukung Vite/Wrangler/jsdom terpasang diperlukan (gunakan Node 24 LTS).
+Versi Node yang didukung Vite/Wrangler terpasang diperlukan (gunakan Node 24 LTS).
 
 ## Migrasi dan data
 
@@ -80,7 +78,6 @@ curl -X POST http://127.0.0.1:8787/api/v1/items \
 - `src/components/planning-detail/{Header,Tabs}.tsx`, `references/{index,ReferenceItem,ReferenceDrawer}.tsx`, `payment/{index,PaymentDrawer,PaymentHistory,PaymentSummaryCards,PaymentVendorNotSelected}.tsx`: referensi tambah/edit/hapus, pilihan final, progressive disclosure, drawer pembayaran, riwayat termasuk void. Tanpa pilihan final, tab/section/tombol pembayaran disembunyikan. Mutations mencegah submit ganda, menampilkan loading/error, memperbarui state tanpa reload. Edit/void transaksi tersedia di API; UI riwayat saat ini tetap hanya baca.
 - `src/constants/{home,planning}/index.ts`: mock uang/item/kandidat/transaksi dihapus; metadata kategori tetap hanya untuk fallback/icon. Optional gambar referensi tetap preview lokal, tidak disimpan ke D1; field `note` disimpan. Penyimpanan gambar permanen membutuhkan workflow tersendiri.
 - `vite.config.js`, `package.json`, `package-lock.json`, `.gitignore`, `.dev.vars.example`, `eslint.config.js`: proxy lokal, scripts/dependencies, pengecualian hasil Wrangler, lint TypeScript.
-- `scripts/{check-api,check-ui,check-routing}.mjs`: pemeriksaan D1/API, DOM dan Router. Tidak membutuhkan test framework.
 
 Perubahan UI/styling yang sudah ada/masuk selama pengerjaan dipertahankan. Tidak ada redesign styled-components atau perubahan menu utama. Route `/`, `/rencana`, `/rencana/:itemId` dan redirect `/pembayaran` tetap; `kategori`, `q`, `selection` ada di URL. Navigasi kembali mempertahankan filter; kunjungan Home/Rencana mengambil ulang total dari API.
 

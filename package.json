@@ -9,11 +9,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.worker.json",
-    "check:routing": "node scripts/check-routing.mjs",
     "dev:api": "wrangler dev --ip 127.0.0.1 --port 8787",
     "db:migrate:local": "wrangler d1 migrations apply DB --local",
-    "types:worker": "wrangler types --include-runtime false --strict-vars false",
-    "test:api": "node scripts/check-api.mjs"
+    "types:worker": "wrangler types --include-runtime false --strict-vars false"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.107.1",

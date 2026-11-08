@@ -110,27 +110,19 @@ export const PlanningPage = styled.div`
   .planning-header-text h1 {
     margin: 0 0 8px;
   }
+  .add-btn-compact,
   .planning-header .add-button {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-height: 42px;
-    padding: 8px 18px;
-    font-size: 0.875rem;
+    gap: 6px;
+    padding: 6px 12px;
+    min-height: 38px;
+    font-size: 0.8125rem;
     font-weight: 600;
-    white-space: nowrap;
-    border-radius: 9999px;
-    box-shadow: 0 2px 6px rgba(121, 83, 68, 0.2);
-    transition:
-      transform 0.15s ease,
-      background 0.18s ease,
-      box-shadow 0.18s ease;
+    border-radius: 10px;
+    flex-shrink: 0;
   }
-  .planning-header .add-button:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(121, 83, 68, 0.25);
-  }
+  .add-btn-compact svg,
   .planning-header .add-button svg {
     flex-shrink: 0;
   }
