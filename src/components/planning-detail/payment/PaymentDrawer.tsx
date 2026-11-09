@@ -11,6 +11,7 @@ import {
 } from "react";
 import { PaymentSheet } from "../../../styles/Planning.styles";
 import { EditIcon, ReceiptIcon, TrashIcon } from "../../../asset";
+import { formatRupiah } from "../../../utils/currency";
 
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -27,7 +28,7 @@ export default function PaymentDrawer({
   onClose,
   payment,
 }: PaymentDrawerProps) {
-  const { item, remaining, busy, mutate } = usePlanningCtx();
+  const { item, selected, remaining, busy, mutate } = usePlanningCtx();
   const maxAmount = Math.min(
     1_000_000_000_000,
     remaining + (payment?.amount ?? 0),
@@ -168,9 +169,26 @@ export default function PaymentDrawer({
         </button>
       </div>
 
-      <p id="drawer-description">
-        {item?.name} · Pembayaran akan tersimpan di database.
-      </p>
+      <div className="payment-context-card" id="drawer-description">
+        <div className="context-card-main">
+          <span className="context-card-badge">Target Pembayaran</span>
+
+          <strong
+            className="context-card-title"
+            title={selected?.name ?? item?.name}
+          >
+            {selected?.name ?? item?.name}
+          </strong>
+        </div>
+
+        <div className="context-card-side">
+          <span className="context-card-label">Sisa Tagihan</span>
+
+          <strong className="context-card-amount">
+            {formatRupiah(maxAmount)}
+          </strong>
+        </div>
+      </div>
 
       <form
         onSubmit={async (event) => {
@@ -302,7 +320,11 @@ export default function PaymentDrawer({
           inputMode="numeric"
           required
           placeholder="Contoh: 100,000"
+          aria-describedby="payment-amount-hint"
         />
+        <span id="payment-amount-hint" className="field-hint">
+          Maksimal nominal: {formatRupiah(maxAmount)}
+        </span>
 
         <label htmlFor="payment-date">Tanggal</label>
         <input

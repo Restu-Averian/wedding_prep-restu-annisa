@@ -259,8 +259,7 @@ export default function PaymentHistory({
           <p className="empty-title">Belum ada riwayat pembayaran</p>
 
           <p className="empty-subtitle">
-            Catatan pembayaran seperti DP atau cicilan akan muncul di sini
-            secara rapi.
+            Catatan pembayaran akan muncul disini
           </p>
         </div>
       )}

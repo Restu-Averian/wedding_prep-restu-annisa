@@ -1038,6 +1038,13 @@ export const DetailPage = styled(PlanningPage)`
     line-height: 1.3;
   }
 
+  .card-total .summary-sub {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+
   /* Transactions */
   .transactions-header {
     display: flex;

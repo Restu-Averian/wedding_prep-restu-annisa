@@ -592,6 +592,87 @@ export const PaymentSheet = styled.dialog`
     color: #7a6656;
     font-size: 0.875rem;
   }
+  .payment-context-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: #faf6f0;
+    border: 1px solid #ebdccf;
+    box-sizing: border-box;
+  }
+  .context-card-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1 1 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .context-card-badge {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #8d7668;
+    line-height: 1.2;
+  }
+  .context-card-title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: #493426;
+    line-height: 1.35;
+  }
+  .context-card-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    flex-shrink: 0;
+    min-width: max-content;
+    gap: 2px;
+  }
+  .context-card-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #8d7668;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+  }
+  .context-card-amount {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ab3f24;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.25;
+  }
+  .field-hint {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #7a6656;
+    line-height: 1.4;
+  }
+  @media (max-width: 420px) {
+    .payment-context-card {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .context-card-side {
+      align-items: flex-start;
+      text-align: left;
+    }
+  }
   form {
     display: grid;
     gap: 8px;
