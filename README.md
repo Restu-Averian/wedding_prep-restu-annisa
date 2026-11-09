@@ -26,6 +26,18 @@ npx wrangler deploy --dry-run # validasi bundling lokal; bukan deployment
 
 Versi Node yang didukung Vite/Wrangler terpasang diperlukan (gunakan Node 24 LTS).
 
+## PWA
+
+`vite-plugin-pwa` menghasilkan satu `manifest.webmanifest`, `sw.js`, dan skrip registrasi saat build. Metadata manifest berasal dari `vite.config.js`; jangan menambahkan manifest kedua di `public/`. Ikon monogram yang ada disalin tanpa perubahan.
+
+Precache hanya berisi JS/CSS build, empat ikon manifest, favicon, Apple Touch Icon, dan manifest statis. HTML/navigasi dan `/api/*` selalu membutuhkan jaringan; tidak ada runtime cache, offline shell, background sync, antrean pembayaran, atau reload otomatis. Update service worker menunggu semua tab/jendela aplikasi lama ditutup. Tidak ada persistensi TanStack Query baru.
+
+Untuk memeriksa hasil build secara lokal, gunakan `npm run build` lalu `npm run dev:api` dengan konfigurasi development lokal yang sudah ada. Periksa `/rencana`, `/rencana/:itemId`, manifest, ikon, dan service worker melalui origin Wrangler yang sama. DevTools → Application → Cache Storage seharusnya hanya memuat aset statis di atas. Setelah mengakses data privat, pastikan tidak ada respons API/invoice/referensi di cache. Putuskan jaringan: navigasi baru harus gagal; submit pembayaran tidak boleh berhasil atau masuk antrean. Sambungkan kembali dan pastikan request mutasi tidak diputar ulang. Uji update dengan form belum disimpan: tidak boleh terjadi reload otomatis.
+
+Instalasi perangkat harus diuji melalui HTTPS pada origin privat yang telah diotorisasi: Android Chrome → menu → Install app/Add to Home screen; iOS Safari → Share → Add to Home Screen → aktifkan Open as Web App jika tersedia → Add. Buka dari ikon dan periksa monogram serta tampilan standalone tanpa address bar. Uji akses privat kembali dari aplikasi terpasang dan kedua deep link.
+
+**Batasan saat ini:** gate produksi yang ada (`LOCAL_DEVELOPMENT=false`) mengembalikan `503 ACCESS_NOT_CONFIGURED` untuk seluruh situs, termasuk manifest/service worker. PWA belum dapat dipasang dari produksi sampai akses privat dikonfigurasi melalui pekerjaan terpisah. Jangan mengubah nilai itu menjadi `true` di produksi. Perubahan PWA ini tidak mengubah middleware, Wrangler, D1, atau R2.
+
 ## Migrasi dan data
 
 - `migrations/0001_initial.sql`: tabel `categories`, `items`, `candidates`, `payments`, view `item_finances`, foreign keys, constraints, indexes dan trigger finansial.
@@ -43,24 +55,24 @@ Versi Node yang didukung Vite/Wrangler terpasang diperlukan (gunakan Node 24 LTS
 
 Semua endpoint memakai prefix `/api/v1`. Sukses `{ "data": ... }`, list juga `{ "meta": { "total": ... } }`, error `{ "error": { "code": "...", "message": "..." } }`. DELETE berhasil mengembalikan 204 tanpa body. Mutation selain DELETE mengembalikan detail item terkini. Validasi Zod mengembalikan 422; konflik aturan bisnis 409; ID tidak ditemukan 404. SQL internal tidak diteruskan ke client.
 
-| Method | Path | Payload/query |
-| --- | --- | --- |
-| GET | `/dashboard` | Total dan ringkasan per kategori dari D1 |
-| GET | `/categories` | Urut `sortOrder` |
-| GET | `/items` | `category=<slug>`, `q=<nama>`, `selection=all\|selected\|unselected` |
-| GET | `/items/:id` | Item, category, candidates, financial, payments (termasuk void) |
-| POST | `/items` | `name`, `categoryId`, `estimatedAmount` |
-| PATCH | `/items/:id` | Sebagian field POST |
-| DELETE | `/items/:id` | Hanya tanpa riwayat pembayaran |
-| POST | `/items/:id/candidates` | `name`, `url` HTTP/HTTPS, `price`, `note?`; JSON atau multipart dengan `image?` |
-| PATCH | `/items/:id/candidates/:candidateId` | Sebagian field POST; multipart untuk ganti gambar, `removeImage: true` untuk hapus |
-| DELETE | `/items/:id/candidates/:candidateId` | Hanya tanpa riwayat pembayaran |
-| PUT | `/items/:id/selection` | `{ "candidateId": "uuid" }` |
-| DELETE | `/items/:id/selection` | Hanya tanpa riwayat pembayaran |
-| POST | `/items/:id/payments` | JSON lama atau multipart: `type`, `amount`, `paidAt` (`YYYY-MM-DD`), `note?`, `invoice?` (file, multipart saja) |
-| GET | `/items/:id/payments/:paymentId/invoice` | Unduh invoice melalui gate akses Worker; termasuk transaksi void |
-| PATCH | `/items/:id/payments/:paymentId` | Sebagian field POST |
-| DELETE | `/items/:id/payments/:paymentId` | Void; tidak menghapus riwayat |
+| Method | Path                                     | Payload/query                                                                                                   |
+| ------ | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| GET    | `/dashboard`                             | Total dan ringkasan per kategori dari D1                                                                        |
+| GET    | `/categories`                            | Urut `sortOrder`                                                                                                |
+| GET    | `/items`                                 | `category=<slug>`, `q=<nama>`, `selection=all\|selected\|unselected`                                            |
+| GET    | `/items/:id`                             | Item, category, candidates, financial, payments (termasuk void)                                                 |
+| POST   | `/items`                                 | `name`, `categoryId`, `estimatedAmount`                                                                         |
+| PATCH  | `/items/:id`                             | Sebagian field POST                                                                                             |
+| DELETE | `/items/:id`                             | Hanya tanpa riwayat pembayaran                                                                                  |
+| POST   | `/items/:id/candidates`                  | `name`, `url` HTTP/HTTPS, `price`, `note?`; JSON atau multipart dengan `image?`                                 |
+| PATCH  | `/items/:id/candidates/:candidateId`     | Sebagian field POST; multipart untuk ganti gambar, `removeImage: true` untuk hapus                              |
+| DELETE | `/items/:id/candidates/:candidateId`     | Hanya tanpa riwayat pembayaran                                                                                  |
+| PUT    | `/items/:id/selection`                   | `{ "candidateId": "uuid" }`                                                                                     |
+| DELETE | `/items/:id/selection`                   | Hanya tanpa riwayat pembayaran                                                                                  |
+| POST   | `/items/:id/payments`                    | JSON lama atau multipart: `type`, `amount`, `paidAt` (`YYYY-MM-DD`), `note?`, `invoice?` (file, multipart saja) |
+| GET    | `/items/:id/payments/:paymentId/invoice` | Unduh invoice melalui gate akses Worker; termasuk transaksi void                                                |
+| PATCH  | `/items/:id/payments/:paymentId`         | Sebagian field POST                                                                                             |
+| DELETE | `/items/:id/payments/:paymentId`         | Void; tidak menghapus riwayat                                                                                   |
 
 Payment type: `deposit`, `installment`, `settlement`. Nominal wajib integer positif dan tidak boleh melampaui outstanding. Tanggal harus tanggal kalender valid. URL selain HTTP/HTTPS ditolak; tidak ada scraping. Request JSON dibatasi 16 KiB. POST pembayaran multipart dibatasi 5 MiB + 16 KiB overhead; invoice maksimal 5 MiB, satu file PDF/JPG/PNG. Worker memeriksa MIME dan signature awal file (bukan pemeriksaan antivirus/validitas seluruh dokumen). Error penting: `SELECTION_REQUIRED`, `OVERPAYMENT`, `FINANCIAL_HISTORY`, `INVALID_SELECTION`, `PAYMENT_VOIDED`, `VALIDATION_ERROR`, `NOT_FOUND`.
 
