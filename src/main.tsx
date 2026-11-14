@@ -5,6 +5,10 @@ import { ROUTES } from "./router";
 import { GlobalStyle } from "./styles/GlobalStyle";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./api/query";
+import { initializeInstallApp } from "./installApp";
+
+const disposeInstallApp = initializeInstallApp();
+if (import.meta.hot) import.meta.hot.dispose(disposeInstallApp);
 
 const router = createBrowserRouter(ROUTES);
 

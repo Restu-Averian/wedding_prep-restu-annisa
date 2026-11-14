@@ -1,3 +1,4 @@
+import AmountInput from "../../AmountInput";
 import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
 import {
   useState,
@@ -10,6 +11,7 @@ import type { Candidate } from "../../../context/planning/types";
 import { ReferenceSheet } from "../../../styles/PlanningDetail.styles";
 import { formatRupiah } from "../../../utils/currency";
 import { CheckIcon, EditIcon, ImageIcon, TrashIcon } from "../../../asset";
+import { useConfirm } from "../../../context/ConfirmContext";
 
 export interface ReferenceDrawerProps {
   candidate: Candidate | null;
@@ -22,12 +24,15 @@ export default function ReferenceDrawer({
 }: ReferenceDrawerProps) {
   const { item, selectedId, transactions, busy, mutate, saveReference } =
     usePlanningCtx();
+  const confirm = useConfirm();
   const minimumPrice = 0;
   const priceLocked = candidate?.id === selectedId && transactions.length > 0;
   const cannotDelete = transactions.length > 0;
   const [image, setImage] = useState(candidate?.image);
+  const [imageFile, setImageFile] = useState<File>();
   const [readingImage, setReadingImage] = useState(false);
   const [error, setError] = useState("");
+  const [referenceSaved, setReferenceSaved] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const readerRef = useRef<FileReader | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -67,6 +72,7 @@ export default function ReferenceDrawer({
       preview.onload = () => {
         if (readerRef.current !== reader) return;
         setImage(source);
+        setImageFile(file);
         setReadingImage(false);
       };
       preview.src = source;
@@ -76,10 +82,16 @@ export default function ReferenceDrawer({
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!item || busy || readingImage || submittedRef.current) return;
+    if (!item || busy || readingImage || submittedRef.current) {
+      return;
+    }
+
     const data = new FormData(event.currentTarget);
-    const name = String(data.get("name") ?? "").trim();
+
+    const name = String(data.get("name") ?? "").replace(/[\r\n]+/g, " ").trim();
+
     const price = Number(data.get("price"));
+
     const url = String(data.get("url") ?? "").trim();
     if (
       !name ||
@@ -112,17 +124,33 @@ export default function ReferenceDrawer({
       note: String(data.get("note") ?? "").trim(),
     };
     try {
-      await saveReference(reference);
+      await saveReference(reference, imageFile);
       onClose(true);
     } catch (error) {
       setError(error instanceof Error ? error.message : "Penyimpanan gagal.");
-      submittedRef.current = false;
+      if (error instanceof Error && error.name === "ReferenceSavedError") {
+        setReferenceSaved(true);
+      } else {
+        submittedRef.current = false;
+      }
     }
   }
 
   async function deleteCandidate() {
-    if (!candidate || cannotDelete || readingImage || busy) return;
-    if (!window.confirm(`Hapus referensi "${candidate.name}"?`)) return;
+    if (!candidate || cannotDelete || readingImage || busy) {
+      return;
+    }
+
+    const confirmed = await confirm({
+      title: "Hapus Referensi",
+      message: `Hapus referensi "${candidate.name}"? Data yang dihapus tidak dapat dipulihkan.`,
+      confirmText: "Hapus Referensi",
+      tone: "danger",
+    });
+
+    if (!confirmed) {
+      return;
+    }
     try {
       await mutate(`/candidates/${candidate.id}`, "DELETE");
       onClose(true);
@@ -171,8 +199,7 @@ export default function ReferenceDrawer({
       </div>
 
       <p id="reference-description">
-        Simpan produk atau vendor untuk dibandingkan. Gambar hanya menjadi
-        preview lokal.
+        Simpan produk atau vendor beserta gambar untuk dibandingkan.
       </p>
 
       <form
@@ -183,9 +210,10 @@ export default function ReferenceDrawer({
       >
         <label htmlFor="reference-name">Nama produk/vendor</label>
 
-        <input
+        <textarea
           id="reference-name"
           name="name"
+          rows={2}
           defaultValue={candidate?.name ?? ""}
           maxLength={120}
           required
@@ -193,16 +221,14 @@ export default function ReferenceDrawer({
 
         <label htmlFor="reference-price">Harga (Rp)</label>
 
-        <input
+        <AmountInput
           id="reference-price"
           readOnly={priceLocked}
           name="price"
-          type="number"
           min={minimumPrice}
-          max={Number.MAX_SAFE_INTEGER}
-          step="1"
+          max={1_000_000_000_000}
           inputMode="numeric"
-          defaultValue={candidate?.price ?? ""}
+          defaultValue={candidate?.price}
           required
         />
 
@@ -237,7 +263,7 @@ export default function ReferenceDrawer({
           type="file"
           className="sr-only"
           accept="image/jpeg,image/png,image/webp"
-          disabled={readingImage || busy}
+          disabled={readingImage || busy || referenceSaved}
           onChange={chooseImage}
           aria-describedby="reference-image-hint"
         />
@@ -280,19 +306,21 @@ export default function ReferenceDrawer({
                 <button
                   type="button"
                   className="preview-change-btn"
-                  disabled={readingImage || busy}
+                  disabled={readingImage || busy || referenceSaved}
                   onClick={() => fileRef.current?.click()}
                 >
                   <EditIcon size={14} />
+
                   <span>Ganti</span>
                 </button>
 
                 <button
                   type="button"
                   className="preview-remove-btn"
-                  disabled={readingImage || busy}
+                  disabled={readingImage || busy || referenceSaved}
                   onClick={() => {
                     setImage(undefined);
+                    setImageFile(undefined);
                     setError("");
                     if (fileRef.current) fileRef.current.value = "";
                   }}
@@ -343,7 +371,7 @@ export default function ReferenceDrawer({
           <button
             className="primary drawer-submit-btn"
             type="submit"
-            disabled={readingImage || busy}
+            disabled={readingImage || busy || referenceSaved}
           >
             {busy ? "Menyimpan…" : candidate ? "Simpan" : "Tambah Referensi"}
           </button>

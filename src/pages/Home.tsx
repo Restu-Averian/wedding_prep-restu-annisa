@@ -11,6 +11,7 @@ import {
   CategoryGridSkeleton,
 } from "../components/common/Skeletons";
 import { HomeDashboard } from "../styles/Home.styles";
+import InstallApp from "../components/common/InstallApp";
 
 export default function Home() {
   const { data, loading, error, retry } = useApi<Dashboard>(
@@ -45,6 +46,7 @@ export default function Home() {
       {data && (
         <>
           <FinancialCard dashboard={data} />
+          <InstallApp />
           {data.totalItems === 0 && (
             <StatusFeedback
               type="empty"

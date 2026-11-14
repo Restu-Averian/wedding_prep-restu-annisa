@@ -40,6 +40,12 @@ export async function api<T>(
     throw new Error("Respons server tidak valid.");
   }
 
+  if (payload.meta?.referenceSaved) {
+    const error = new Error("Referensi sudah tersimpan. Tutup form dan muat ulang halaman untuk melihat perubahan; jangan kirim ulang.");
+    error.name = "ReferenceSavedError";
+    throw error;
+  }
+
   if (payload.meta?.paymentSaved) {
     const error = new Error(
       "Pembayaran sudah tersimpan. Tutup form dan muat ulang halaman untuk melihat riwayat; jangan catat pembayaran yang sama lagi.",

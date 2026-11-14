@@ -29,6 +29,8 @@ export { TrashIcon } from "./TrashIcon";
 export { ImageIcon } from "./ImageIcon";
 export { HomeIcon } from "./HomeIcon";
 export { PlannerIcon } from "./PlannerIcon";
+export { DownloadIcon } from "./DownloadIcon";
+export { ShareIcon } from "./ShareIcon";
 
 export const CATEGORY_ICONS: Record<
   string,

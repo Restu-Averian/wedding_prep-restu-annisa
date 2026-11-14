@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
 import type { Candidate } from "../../../context/planning/types";
 import { formatRupiah } from "../../../utils/currency";
@@ -13,10 +14,54 @@ export interface ReferenceItemProps {
   onEdit: (candidate: Candidate) => void;
 }
 
-export default function ReferenceItem({ candidate, onEdit }: ReferenceItemProps) {
+export default function ReferenceItem({
+  candidate,
+  onEdit,
+}: ReferenceItemProps) {
+  const [error, setError] = useState("");
+  const [needsReload, setNeedsReload] = useState(false);
+  const [clearing, setClearing] = useState(false);
+  const [notice, setNotice] = useState("");
   const { item, selectedId, transactions, busy, mutate } = usePlanningCtx();
   const isSelected = candidate.id === selectedId;
-  const cannotSelect = busy || transactions.length > 0;
+  const cannotSelect = busy || needsReload || transactions.length > 0;
+
+  async function handleUnselect() {
+    setError("");
+
+    setClearing(true);
+
+    try {
+      await mutate("/selection", "DELETE");
+
+      setNotice("Pilihan dibatalkan. Perhitungan kembali memakai estimasi.");
+    } catch (error) {
+      if (error instanceof Error && error.name === "MutationSavedError") {
+        setNeedsReload(true);
+      }
+
+      setError(
+        error instanceof Error ? error.message : "Pilihan gagal dibatalkan.",
+      );
+    } finally {
+      setClearing(false);
+    }
+  }
+
+  async function handleSelect() {
+    setError("");
+
+    setNotice("");
+    try {
+      await mutate("/selection", "PUT", {
+        candidateId: candidate.id,
+      });
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Pilihan gagal disimpan.",
+      );
+    }
+  }
 
   return (
     <li className={`reference ${isSelected ? "is-selected" : ""}`}>
@@ -78,10 +123,27 @@ export default function ReferenceItem({ candidate, onEdit }: ReferenceItemProps)
 
       <div className="reference-actions">
         {isSelected ? (
-          <div className="badge-selected-status">
-            <CheckIcon size={14} />
+          <div>
+            <div className="badge-selected-status">
+              <CheckIcon size={14} />
 
-            <span>Sedang Digunakan Sebagai Pilihan Final</span>
+              <span>Pilihan Final</span>
+            </div>
+
+            <button
+              type="button"
+              className="unselect-reference-btn"
+              disabled={cannotSelect || clearing}
+              onClick={handleUnselect}
+            >
+              {clearing ? "Membatalkan…" : "Batal Pilih"}
+            </button>
+
+            {transactions.length > 0 ? (
+              <p className="cannot-select-hint">
+                Pilihan terkunci karena ada riwayat pembayaran.
+              </p>
+            ) : null}
           </div>
         ) : (
           <div className="select-wrapper">
@@ -89,24 +151,26 @@ export default function ReferenceItem({ candidate, onEdit }: ReferenceItemProps)
               className="outline select-btn"
               type="button"
               disabled={cannotSelect}
-              onClick={() => {
-                void mutate("/selection", "PUT", {
-                  candidateId: candidate.id,
-                }).catch(() => {});
-              }}
+              onClick={handleSelect}
             >
               Pilih Opsi Ini
             </button>
 
             {cannotSelect && (
               <p className="cannot-select-hint">
-                {busy
-                  ? "Menyimpan…"
-                  : "Pilihan terkunci karena memiliki riwayat pembayaran."}
+                {needsReload
+                  ? "Muat ulang halaman untuk melihat pilihan terbaru."
+                  : busy
+                    ? "Menyimpan…"
+                    : "Pilihan terkunci karena memiliki riwayat pembayaran."}
               </p>
             )}
           </div>
         )}
+
+        {error && <p role="alert">{error}</p>}
+
+        {notice && <p role="status">{notice}</p>}
       </div>
     </li>
   );

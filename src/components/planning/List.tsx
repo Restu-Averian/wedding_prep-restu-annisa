@@ -40,15 +40,20 @@ export default function List({ items, queryString = "" }: ListProps) {
                 <div className="card-icon-wrapper" aria-hidden="true">
                   {IconComponent && <IconComponent size={18} />}
                 </div>
+
                 <span className="badge" data-selected={isSelected}>
                   {isSelected && <CheckIcon size={11} />}
+
                   <span>{isSelected ? "Sudah Dipilih" : "Belum Dipilih"}</span>
                 </span>
               </div>
+
               <div className="card-body">
                 <span className="eyebrow">{category?.name}</span>
+
                 <h2>{item.name}</h2>
               </div>
+
               <p className="price">
                 {formatRupiah(item.financial.effectiveAmount)}
               </p>

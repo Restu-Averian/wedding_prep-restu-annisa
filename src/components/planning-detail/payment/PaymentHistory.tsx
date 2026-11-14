@@ -1,15 +1,82 @@
-import { PAYMENT_LABELS } from "../../../context/planning/types";
+import { useRef, useState } from "react";
+import { PAYMENT_LABELS, type Payment } from "../../../context/planning/types";
 import { usePlanningCtx } from "../../../context/planning/PlanningCtxProvider";
 import { formatRupiah } from "../../../utils/currency";
 import {
   CalendarIcon,
   ChevronDownIcon,
+  EditIcon,
+  ExternalLinkIcon,
   NoteIcon,
   ReceiptIcon,
+  TrashIcon,
 } from "../../../asset";
+import { useConfirm } from "../../../context/ConfirmContext";
 
-export default function PaymentHistory() {
-  const { transactions } = usePlanningCtx();
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+export default function PaymentHistory({
+  onEdit,
+}: {
+  onEdit?: (payment: Payment) => void;
+}) {
+  const [feedback, setFeedback] = useState<{
+    id: string;
+    message: string;
+    error: boolean;
+  }>();
+  const [needsReload, setNeedsReload] = useState(false);
+  const [deletingId, setDeletingId] = useState<string>();
+  const submitting = useRef(false);
+  const confirm = useConfirm();
+  const { transactions, busy, mutate } = usePlanningCtx();
+
+  async function removePayment(payment: Payment) {
+    if (busy || submitting.current || needsReload || payment.voidedAt) {
+      return;
+    }
+
+    const confirmed = await confirm({
+      title: "Batalkan Pembayaran",
+      message: `Hapus pembayaran ${formatRupiah(payment.amount)}? Pembayaran akan ditandai dibatalkan dan tidak dihitung dalam total terbayar.`,
+      confirmText: "Batalkan Pembayaran",
+      tone: "danger",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    submitting.current = true;
+    setDeletingId(payment.id);
+    setFeedback(undefined);
+    try {
+      await mutate(`/payments/${encodeURIComponent(payment.id)}`, "DELETE");
+      setFeedback({
+        id: payment.id,
+        message: "Pembayaran dibatalkan. Total terbayar diperbarui.",
+        error: false,
+      });
+    } catch (error) {
+      if (error instanceof Error && error.name === "MutationSavedError") {
+        setNeedsReload(true);
+      }
+
+      setFeedback({
+        id: payment.id,
+        message:
+          error instanceof Error ? error.message : "Pembayaran gagal dihapus.",
+        error: true,
+      });
+    } finally {
+      submitting.current = false;
+      setDeletingId(undefined);
+    }
+  }
 
   return (
     <>
@@ -83,10 +150,36 @@ export default function PaymentHistory() {
                         </span>
 
                         <a
+                          className="invoice-download-card"
                           href={`/api/v1/items/${encodeURIComponent(payment.itemId)}/payments/${encodeURIComponent(payment.id)}/invoice`}
                           download
+                          title={`Unduh ${payment.invoice.name}`}
                         >
-                          Unduh invoice · {payment.invoice.name}
+                          <div className="invoice-card-icon" aria-hidden="true">
+                            <ReceiptIcon size={18} />
+                          </div>
+
+                          <div className="invoice-card-info">
+                            <span className="invoice-filename">
+                              {payment.invoice.name}
+                            </span>
+
+                            <span className="invoice-meta">
+                              {payment.invoice.size > 0
+                                ? formatFileSize(payment.invoice.size)
+                                : "Dokumen"}
+
+                              {payment.invoice.type
+                                ? ` · ${payment.invoice.type.split("/")[1]?.toUpperCase() ?? "FILE"}`
+                                : ""}
+                            </span>
+                          </div>
+
+                          <span className="invoice-action-badge">
+                            <span>Unduh</span>
+
+                            <ExternalLinkIcon size={13} />
+                          </span>
                         </a>
                       </div>
                     )}
@@ -114,6 +207,43 @@ export default function PaymentHistory() {
                         )}
                       </div>
                     </div>
+
+                    {!payment.voidedAt && (
+                      <div className="payment-history-actions">
+                        {onEdit && (
+                          <button
+                            type="button"
+                            className="payment-edit-btn"
+                            disabled={busy || !!deletingId || needsReload}
+                            onClick={() => onEdit(payment)}
+                            aria-label={`Edit pembayaran ${formatRupiah(payment.amount)}`}
+                          >
+                            <EditIcon size={14} />
+                            <span>Edit</span>
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          className="payment-delete-btn"
+                          disabled={busy || !!deletingId || needsReload}
+                          onClick={() => {
+                            void removePayment(payment);
+                          }}
+                          aria-label={`Hapus pembayaran ${formatRupiah(payment.amount)}`}
+                        >
+                          <TrashIcon size={14} />
+                          <span>
+                            {deletingId === payment.id ? "Menghapus…" : "Hapus"}
+                          </span>
+                        </button>
+                      </div>
+                    )}
+
+                    {feedback?.id === payment.id && (
+                      <p role={feedback.error ? "alert" : "status"}>
+                        {feedback.message}
+                      </p>
+                    )}
                   </div>
                 </details>
               </li>
@@ -129,8 +259,7 @@ export default function PaymentHistory() {
           <p className="empty-title">Belum ada riwayat pembayaran</p>
 
           <p className="empty-subtitle">
-            Catatan pembayaran seperti DP atau cicilan akan muncul di sini
-            secara rapi.
+            Catatan pembayaran akan muncul disini
           </p>
         </div>
       )}

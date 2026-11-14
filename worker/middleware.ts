@@ -48,8 +48,10 @@ app.use("*", async (c, next) => {
 app.use("/api/*", (c, next) =>
   bodyLimit({
     maxSize:
-      c.req.method === "POST" &&
-      /^\/api\/v1\/items\/[^/]+\/payments$/.test(c.req.path) &&
+      ((c.req.method === "POST" &&
+        /^\/api\/v1\/items\/[^/]+\/(payments|candidates)$/.test(c.req.path)) ||
+        (c.req.method === "PATCH" &&
+          /^\/api\/v1\/items\/[^/]+\/candidates\/[^/]+$/.test(c.req.path))) &&
       c.req
         .header("Content-Type")
         ?.toLowerCase()

@@ -89,5 +89,5 @@ export interface PlanningCtxValue {
   busy: boolean;
   mutationError: string;
   mutate: (path: string, method: string, data?: unknown) => Promise<ItemDetail>;
-  saveReference: (candidate: Candidate) => Promise<void>;
+  saveReference: (candidate: Candidate, imageFile?: File) => Promise<void>;
 }

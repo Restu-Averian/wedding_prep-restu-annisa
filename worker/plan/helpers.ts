@@ -100,7 +100,7 @@ export async function detail(db: D1Database, id: string) {
 
       db
         .prepare(
-          "SELECT id, item_id AS itemId, name, url, price, note FROM candidates WHERE item_id = ? ORDER BY created_at, id",
+          "SELECT id, item_id AS itemId, name, url, price, note, image_key AS imageKey FROM candidates WHERE item_id = ? ORDER BY created_at, id",
         )
         .bind(id),
 
@@ -118,7 +118,14 @@ export async function detail(db: D1Database, id: string) {
 
   return {
     ...itemView(items.results[0] as ItemRow),
-    candidates: candidates.results,
+    candidates: candidates.results.map(({ imageKey, ...candidate }) => ({
+      ...candidate,
+      ...(imageKey
+        ? {
+            image: `/api/v1/items/${encodeURIComponent(id)}/candidates/${encodeURIComponent(String(candidate.id))}/image?v=${encodeURIComponent(String(imageKey).split("/").at(-1) ?? "")}`,
+          }
+        : {}),
+    })),
     payments: payments.results.map(
       ({ invoiceName, invoiceType, invoiceSize, ...payment }) => ({
         ...payment,

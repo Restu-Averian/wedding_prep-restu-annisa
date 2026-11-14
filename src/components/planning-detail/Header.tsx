@@ -7,11 +7,13 @@ import type { Category } from "../../context/planning/types";
 import { CATEGORY_ICONS, CheckIcon, EditIcon, TrashIcon } from "../../asset";
 import { formatRupiah } from "../../utils/currency";
 import ItemDrawer from "../planning/ItemDrawer";
+import { useConfirm } from "../../context/ConfirmContext";
 
 export default function Header() {
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState("");
   const submitting = useRef(false);
+  const confirm = useConfirm();
 
   const { item, transactions, busy } = usePlanningCtx();
 
@@ -88,14 +90,16 @@ export default function Header() {
               : "Hapus Kebutuhan"
           }
           onClick={async () => {
-            if (
-              submitting.current ||
-              !window.confirm(
-                `Hapus kebutuhan "${item.name}" beserta referensinya?`,
-              )
-            ) {
-              return;
-            }
+            if (submitting.current) return;
+
+            const confirmed = await confirm({
+              title: "Hapus Kebutuhan",
+              message: `Hapus kebutuhan "${item.name}" beserta referensinya? Tindakan ini tidak dapat dibatalkan.`,
+              confirmText: "Hapus Kebutuhan",
+              tone: "danger",
+            });
+
+            if (!confirmed) return;
 
             submitting.current = true;
             setError("");
