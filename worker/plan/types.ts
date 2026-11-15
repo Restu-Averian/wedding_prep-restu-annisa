@@ -10,4 +10,6 @@ export type ItemRow = {
   effective_amount: number;
   paid_amount: number;
   remaining_amount: number;
+  candidate_count: number;
+  payment_count: number;
 };

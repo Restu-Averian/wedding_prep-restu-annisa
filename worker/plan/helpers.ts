@@ -64,7 +64,10 @@ export async function body<T>(
   return result.data;
 }
 
-export const itemQuery = `SELECT *, effective_amount - paid_amount AS remaining_amount FROM item_finances`;
+export const itemQuery = `SELECT *, effective_amount - paid_amount AS remaining_amount,
+  (SELECT COUNT(*) FROM candidates WHERE item_id = item_finances.id) AS candidate_count,
+  (SELECT COUNT(*) FROM payments WHERE item_id = item_finances.id) AS payment_count
+  FROM item_finances`;
 
 export function itemView(row: ItemRow) {
   return {
@@ -79,6 +82,8 @@ export function itemView(row: ItemRow) {
     estimatedAmount: row.estimated_amount,
     selectedCandidateId: row.selected_candidate_id,
     agreedAmount: row.agreed_amount,
+    candidateCount: row.candidate_count,
+    paymentCount: row.payment_count,
     financial: {
       effectiveAmount: row.effective_amount,
       paidAmount: row.paid_amount,

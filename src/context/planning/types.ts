@@ -21,6 +21,8 @@ export interface WeddingItem {
   estimatedAmount: number;
   selectedCandidateId: string | null;
   agreedAmount: number | null;
+  candidateCount: number;
+  paymentCount: number;
   financial: Financial;
 }
 export interface Candidate {

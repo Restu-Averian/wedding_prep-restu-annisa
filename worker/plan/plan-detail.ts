@@ -76,25 +76,45 @@ app.patch("/items/:id", async (c) => {
 app.delete("/items/:id", async (c) => {
   const id = c.req.param("id");
 
-  const images = await c.env.DB.prepare(
-    "SELECT image_key AS key FROM candidates WHERE item_id = ? AND image_key IS NOT NULL",
-  )
-    .bind(id)
-    .all<{ key: string }>();
   const result = await c.env.DB.batch([
+    c.env.DB.prepare(
+      "INSERT INTO item_deletions(item_id) SELECT id FROM items WHERE id = ?",
+    ).bind(id),
+    c.env.DB.prepare(
+      "INSERT OR IGNORE INTO item_file_cleanup(key,item_id) SELECT image_key,item_id FROM candidates WHERE item_id = ? AND image_key IS NOT NULL",
+    ).bind(id),
+    c.env.DB.prepare(
+      "INSERT OR IGNORE INTO item_file_cleanup(key,item_id) SELECT invoice_key,item_id FROM payments WHERE item_id = ? AND invoice_key IS NOT NULL",
+    ).bind(id),
+    c.env.DB.prepare("DELETE FROM payments WHERE item_id = ?").bind(id),
     c.env.DB.prepare(
       `UPDATE items SET selected_candidate_id = NULL, agreed_amount = NULL WHERE id = ?`,
     ).bind(id),
 
     c.env.DB.prepare("DELETE FROM items WHERE id = ?").bind(id),
+    c.env.DB.prepare(
+      "SELECT key FROM item_file_cleanup WHERE item_id = ?",
+    ).bind(id),
   ]);
 
-  if (!result[1].meta.changes) {
+  const files = result[6].results as { key: string }[];
+  if (!result[5].meta.changes && !files.length) {
     throw missing();
   }
 
   await Promise.all(
-    images.results.map((image) => cleanupImage(c.env.INVOICES, image.key)),
+    files.map(async ({ key }) => {
+      try {
+        await c.env.INVOICES.delete(key);
+        await c.env.DB.prepare(
+          "DELETE FROM item_file_cleanup WHERE item_id = ? AND key = ?",
+        )
+          .bind(id, key)
+          .run();
+      } catch (error) {
+        console.error("ITEM_FILE_CLEANUP_FAILED", { itemId: id, key, error });
+      }
+    }),
   );
   return c.body(null, 204);
 });
