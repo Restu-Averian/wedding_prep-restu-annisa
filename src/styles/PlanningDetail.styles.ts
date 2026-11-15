@@ -1582,6 +1582,8 @@ export const ReferenceSheet = styled(PaymentSheet)`
     border-radius: 14px;
     background: #fffdfa;
     box-shadow: 0 1px 3px rgba(87, 67, 52, 0.04);
+    min-width: 0;
+    max-width: 100%;
   }
   .preview-thumb {
     width: 68px;

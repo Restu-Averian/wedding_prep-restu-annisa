@@ -755,6 +755,8 @@ export const PaymentSheet = styled.dialog`
     border-radius: 14px;
     background: #fffdfa;
     box-shadow: 0 1px 3px rgba(87, 67, 52, 0.04);
+    min-width: 0;
+    max-width: 100%;
   }
   .preview-thumb {
     width: 68px;
@@ -810,6 +812,8 @@ export const PaymentSheet = styled.dialog`
     font-weight: 600;
   }
   .preview-filename {
+    display: block;
+    max-width: 100%;
     font-size: 0.8125rem;
     font-weight: 600;
     color: #493426;

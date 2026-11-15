@@ -6,6 +6,7 @@ import Planning from "./pages/planning";
 import PlanningDetail from "./pages/planning/PlanningDetail";
 import PlanningCtxProvider from "./context/planning/PlanningCtxProvider";
 import NotFound from "./pages/NotFound";
+import HapusData from "./pages/HapusData";
 
 export const ROUTES: RouteObject[] = [
   {
@@ -14,6 +15,7 @@ export const ROUTES: RouteObject[] = [
       { path: "/", element: <Home /> },
 
       { path: "/rencana", element: <Planning /> },
+      { path: "/hapus-data", element: <HapusData /> },
 
       {
         path: "/rencana/:itemId",

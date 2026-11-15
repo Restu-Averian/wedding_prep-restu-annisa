@@ -176,6 +176,8 @@ export const ConfirmTitle = styled.h3<{ $tone: "danger" | "warning" | "neutral" 
 `;
 
 export const ConfirmMessage = styled.p`
+  white-space: pre-line;
+  overflow-wrap: anywhere;
   font-size: 0.9375rem;
   line-height: 1.55;
   color: #796455;
