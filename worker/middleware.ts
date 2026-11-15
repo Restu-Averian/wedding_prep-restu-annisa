@@ -5,18 +5,6 @@ import { MAX_INVOICE_SIZE } from "./plan/invoice";
 const app = new Hono<{ Bindings: Env }>();
 
 app.use("*", async (c, next) => {
-  if (c.env.LOCAL_DEVELOPMENT !== "true") {
-    return c.json(
-      {
-        error: {
-          code: "ACCESS_NOT_CONFIGURED",
-          message: "Akses privat belum dikonfigurasi.",
-        },
-      },
-      503,
-    );
-  }
-
   c.header("Cache-Control", "no-store");
 
   if (!["GET", "HEAD", "OPTIONS"].includes(c.req.method)) {
